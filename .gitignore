@@ -5,9 +5,14 @@ build/
 .env.local
 *.log
 
+
 # Prisma
 backend/prisma/migrations/dev.db
 
 # Misc
 *.local
 .DS_Store
+
+.claude/
+.windsurf/
+.agents/
