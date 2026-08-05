@@ -1,0 +1,13 @@
+node_modules/
+dist/
+build/
+.env
+.env.local
+*.log
+
+# Prisma
+backend/prisma/migrations/dev.db
+
+# Misc
+*.local
+.DS_Store
