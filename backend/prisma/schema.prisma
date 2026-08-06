@@ -1,7 +1,4 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Get a free hosted Postgres database in seconds: `npx create-db`
+// Transight - Prisma Schema
 
 generator client {
   provider = "prisma-client"
@@ -10,4 +7,173 @@ generator client {
 
 datasource db {
   provider = "postgresql"
+}
+
+// ---------------------------------------------------------------------------
+// Auth & Users
+// ---------------------------------------------------------------------------
+
+model Role {
+  id        String   @id @default(uuid())
+  name      String   @unique // Administrator | Operations User | Report Viewer
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  users User[]
+
+  @@map("roles")
+}
+
+model User {
+  id           String    @id @default(uuid())
+  firstName    String    @map("first_name")
+  lastName     String    @map("last_name")
+  email        String    @unique
+  passwordHash String    @map("password_hash")
+  roleId       String    @map("role_id")
+  isActive     Boolean   @default(true) @map("is_active")
+  deletedAt    DateTime? @map("deleted_at") // soft delete
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @updatedAt @map("updated_at")
+
+  role      Role       @relation(fields: [roleId], references: [id])
+  uploads   Upload[]
+  reports   Report[]
+  auditLogs AuditLog[]
+
+  @@index([email])
+  @@index([roleId])
+  @@map("users")
+}
+
+// ---------------------------------------------------------------------------
+// Reference tables
+// ---------------------------------------------------------------------------
+
+model Bank {
+  id        String   @id @default(uuid())
+  code      String   @unique
+  name      String
+  createdAt DateTime @default(now()) @map("created_at")
+
+  transactions Transaction[]
+
+  @@map("banks")
+}
+
+model TransactionStatus {
+  id        String   @id @default(uuid())
+  name      String   @unique // Successful | Failed | Pending | Processing
+  createdAt DateTime @default(now()) @map("created_at")
+
+  transactions Transaction[]
+
+  @@map("transaction_status")
+}
+
+// ---------------------------------------------------------------------------
+// Uploads & Transactions
+// ---------------------------------------------------------------------------
+
+model Upload {
+  id                String   @id @default(uuid())
+  filename          String
+  uploadedBy        String   @map("uploaded_by")
+  totalRecords      Int      @default(0) @map("total_records")
+  successfulRecords Int      @default(0) @map("successful_records")
+  rejectedRecords   Int      @default(0) @map("rejected_records")
+  status            String   @default("Processing") // Processing | Completed | Failed
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @updatedAt @map("updated_at")
+
+  uploadedByUser User                  @relation(fields: [uploadedBy], references: [id])
+  transactions   Transaction[]
+  rejected       RejectedTransaction[]
+
+  @@index([uploadedBy])
+  @@index([createdAt])
+  @@map("uploads")
+}
+
+model Transaction {
+  id                  String   @id @default(uuid())
+  reference           String
+  transactionDate     DateTime @map("transaction_date")
+  amount              Decimal  @db.Decimal(18, 2)
+  currency            String
+  customerAccount     String   @map("customer_account")
+  bankId              String   @map("bank_id")
+  transactionType     String   @map("transaction_type")
+  responseCode        String   @map("response_code")
+  responseDescription String?  @map("response_description")
+  statusId            String   @map("status_id")
+  uploadId            String   @map("upload_id")
+  createdAt           DateTime @default(now()) @map("created_at")
+  updatedAt           DateTime @updatedAt @map("updated_at")
+
+  bank   Bank              @relation(fields: [bankId], references: [id])
+  status TransactionStatus @relation(fields: [statusId], references: [id])
+  upload Upload            @relation(fields: [uploadId], references: [id])
+
+  // Prevent duplicate transaction references within the same upload batch context
+  @@unique([reference, uploadId])
+  @@index([reference])
+  @@index([statusId])
+  @@index([bankId])
+  @@index([transactionDate])
+  @@index([amount])
+  @@map("transactions")
+}
+
+model RejectedTransaction {
+  id           String   @id @default(uuid())
+  uploadId     String   @map("upload_id")
+  rawRowNumber Int      @map("raw_row_number")
+  rawData      Json     @map("raw_data")
+  reason       String
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  upload Upload @relation(fields: [uploadId], references: [id])
+
+  @@index([uploadId])
+  @@map("rejected_transactions")
+}
+
+// ---------------------------------------------------------------------------
+// Reports
+// ---------------------------------------------------------------------------
+
+model Report {
+  id          String   @id @default(uuid())
+  type        String // e.g. "transaction-summary"
+  filters     Json
+  format      String // CSV | EXCEL
+  generatedBy String   @map("generated_by")
+  fileUrl     String?  @map("file_url")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  generatedByUser User @relation(fields: [generatedBy], references: [id])
+
+  @@index([generatedBy])
+  @@map("reports")
+}
+
+// ---------------------------------------------------------------------------
+// Audit Logs
+// ---------------------------------------------------------------------------
+
+model AuditLog {
+  id          String   @id @default(uuid())
+  userId      String   @map("user_id")
+  action      String // e.g. LOGIN, UPLOAD_CSV, GENERATE_REPORT, CREATE_USER
+  description String?
+  ipAddress   String?  @map("ip_address")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([action])
+  @@index([createdAt])
+  @@map("audit_logs")
 }
