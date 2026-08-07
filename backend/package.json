@@ -4,8 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "seed": "tsx prisma/seed.ts"
-  },
+  "dev": "tsx watch src/server.ts",
+  "seed": "tsx prisma/seed.ts"
+},
   "prisma": {
     "seed": "tsx prisma/seed.ts"
   },
