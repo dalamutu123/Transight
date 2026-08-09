@@ -7,6 +7,8 @@ import { errorHandler, notFoundHandler } from '@middleware/errorHandler';
 
 import authRoutes from '@modules/auth/auth.routes';
 import auditRoutes from '@modules/audit/audit.routes';
+import usersRoutes from '@modules/users/users.routes';
+import rolesRoutes from '@modules/roles/roles.routes';
 
 const app = express();
 
@@ -26,6 +28,8 @@ app.get('/health', (_req, res) => {
 const API_PREFIX = '/api/v1';
 app.use(`${API_PREFIX}/auth`, authRoutes);
 app.use(`${API_PREFIX}/audit-logs`, auditRoutes);
+app.use(`${API_PREFIX}/users`, usersRoutes);
+app.use(`${API_PREFIX}/roles`, rolesRoutes);
 
 // 404 + centralized error handling (must be registered last)
 app.use(notFoundHandler);
