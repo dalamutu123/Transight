@@ -51,6 +51,14 @@ export const uploadsService = {
     const rejectedRows: Prisma.RejectedTransactionUncheckedCreateInput[] = [];
     const seenReferencesInFile = new Set<string>();
 
+    // Pre-fetch references that already exist across all prior uploads,
+    // so we can catch duplicates against upload history, not just within this file.
+    const candidateRefs = rawRows
+      .map((r) => r.reference ?? r.transactionReference ?? r['Transaction Reference'])
+      .filter(Boolean);
+    const existing = await uploadsRepository.findExistingReferences(candidateRefs);
+    const existingRefSet = new Set(existing.map((e) => e.reference));
+
     rawRows.forEach((row, index) => {
       const rowNumber = index + 2; // account for header row, 1-indexed data rows
 
@@ -81,13 +89,12 @@ export const uploadsService = {
 
       const data = parsedRow.data;
 
-      // Within-file duplicate check (cross-upload duplicate check comes in the next iteration)
-      if (seenReferencesInFile.has(data.reference)) {
+      if (existingRefSet.has(data.reference) || seenReferencesInFile.has(data.reference)) {
         rejectedRows.push({
           uploadId: upload.id,
           rawRowNumber: rowNumber,
           rawData: row,
-          reason: `Duplicate transaction reference within this file: ${data.reference}`,
+          reason: `Duplicate transaction reference: ${data.reference}`,
         });
         return;
       }
@@ -168,5 +175,10 @@ export const uploadsService = {
       throw AppError.notFound('Upload not found');
     }
     return upload;
+  },
+
+  async getRejectedRecords(uploadId: string) {
+    await this.getById(uploadId); // throws 404 if the upload doesn't exist
+    return uploadsRepository.findRejectedByUploadId(uploadId);
   },
 };

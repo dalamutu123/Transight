@@ -25,4 +25,10 @@ export const uploadsController = {
     const upload = await uploadsService.getById(id);
     return sendSuccess(res, upload);
   }),
+
+  getRejected: asyncHandler(async (req: Request, res: Response) => {
+    const { id } = req.validatedParams as { id: string };
+    const rejected = await uploadsService.getRejectedRecords(id);
+    return sendSuccess(res, rejected);
+  }),
 };

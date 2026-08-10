@@ -33,4 +33,11 @@ router.get('/', authenticate, validate({ query: uploadHistoryQuerySchema }), upl
 
 router.get('/:id', authenticate, validate({ params: uploadIdParamSchema }), uploadsController.getById);
 
+router.get(
+  '/:id/rejected',
+  authenticate,
+  validate({ params: uploadIdParamSchema }),
+  uploadsController.getRejected
+);
+
 export default router;

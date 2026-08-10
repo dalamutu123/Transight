@@ -35,6 +35,13 @@ export const uploadsRepository = {
     return prisma.transactionStatus.findMany();
   },
 
+  findExistingReferences(candidateRefs: string[]) {
+    return prisma.transaction.findMany({
+      where: { reference: { in: candidateRefs } },
+      select: { reference: true },
+    });
+  },
+
   async findHistory(page: number, limit: number) {
     const [items, total] = await Promise.all([
       prisma.upload.findMany({
@@ -52,6 +59,13 @@ export const uploadsRepository = {
     return prisma.upload.findUnique({
       where: { id },
       include: { uploadedByUser: { select: { firstName: true, lastName: true, email: true } } },
+    });
+  },
+
+  findRejectedByUploadId(uploadId: string) {
+    return prisma.rejectedTransaction.findMany({
+      where: { uploadId },
+      orderBy: { rawRowNumber: 'asc' },
     });
   },
 };
