@@ -1,0 +1,6 @@
+reference,transactionDate,amount,currency,customerAccount,bankCode,transactionType,responseCode,responseDescription,status
+TEST-UP-001,2026-08-01,15000.50,NGN,0123456789,GTB,Transfer,00,Approved,Successful
+TEST-UP-002,2026-08-02,5000,NGN,9876543210,ZEN,Deposit,00,Approved,Successful
+TEST-UP-003,2026-08-03,2500,NGN,1122334455,ACC,Withdrawal,51,Insufficient funds,Failed
+TEST-UP-004,2026-08-04,999999,XYZ,5566778899,GTB,Transfer,00,Approved,Successful
+TEST-UP-005,2026-08-05,1000,NGN,4433221100,UNKNOWN,Transfer,00,Approved,Successful

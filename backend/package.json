@@ -4,10 +4,10 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-  "dev": "tsx watch src/server.ts",
-  "seed": "tsx prisma/seed.ts",
-  "seed:transactions": "tsx prisma/seed-transactions.ts"
-},
+    "dev": "tsx watch src/server.ts",
+    "seed": "tsx prisma/seed.ts",
+    "seed:transactions": "tsx prisma/seed-transactions.ts"
+  },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
   },
