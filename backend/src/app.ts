@@ -10,6 +10,7 @@ import auditRoutes from '@modules/audit/audit.routes';
 import usersRoutes from '@modules/users/users.routes';
 import rolesRoutes from '@modules/roles/roles.routes';
 import dashboardRoutes from '@modules/dashboard/dashboard.routes';
+import transactionsRoutes from '@modules/transactions/transactions.routes';
 
 const app = express();
 
@@ -29,6 +30,7 @@ app.use(`${API_PREFIX}/audit-logs`, auditRoutes);
 app.use(`${API_PREFIX}/users`, usersRoutes);
 app.use(`${API_PREFIX}/roles`, rolesRoutes);
 app.use(`${API_PREFIX}/dashboard`, dashboardRoutes);
+app.use(`${API_PREFIX}/transactions`, transactionsRoutes);
 
 app.use(notFoundHandler);
 app.use(errorHandler);

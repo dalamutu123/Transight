@@ -6,7 +6,7 @@ import type { AuditLogQuery } from './audit.validation';
 
 export const auditController = {
   list: asyncHandler(async (req: Request, res: Response) => {
-    const { items, pagination } = await auditService.list(req.query as unknown as AuditLogQuery);
+    const { items, pagination } = await auditService.list(req.validatedQuery as unknown as AuditLogQuery);
     return sendSuccess(res, items, undefined, 200, pagination);
   }),
 };

@@ -8,12 +8,27 @@ interface ValidationSchemas {
   params?: ZodObject;
 }
 
+declare global {
+  namespace Express {
+    interface Request {
+      validatedQuery?: Record<string, unknown>;
+      validatedParams?: Record<string, unknown>;
+    }
+  }
+}
+
 export function validate(schemas: ValidationSchemas) {
   return (req: Request, res: Response, next: NextFunction) => {
     try {
-      if (schemas.body) req.body = schemas.body.parse(req.body);
-      if (schemas.query) req.query = schemas.query.parse(req.query) as typeof req.query;
-      if (schemas.params) req.params = schemas.params.parse(req.params) as typeof req.params;
+      if (schemas.body) {
+        req.body = schemas.body.parse(req.body);
+      }
+      if (schemas.query) {
+        req.validatedQuery = schemas.query.parse(req.query);
+      }
+      if (schemas.params) {
+        req.validatedParams = schemas.params.parse(req.params);
+      }
       next();
     } catch (err) {
       if (err instanceof ZodError) {

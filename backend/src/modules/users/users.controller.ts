@@ -11,14 +11,14 @@ export const usersController = {
   }),
 
   list: asyncHandler(async (req: Request, res: Response) => {
-    const { page, limit } = req.query as unknown as UserListQuery;
+    const { page, limit } = req.validatedQuery as unknown as UserListQuery;
     const { items, pagination } = await usersService.list(page, limit);
     return sendSuccess(res, items, undefined, 200, pagination);
   }),
 
   update: asyncHandler(async (req: Request, res: Response) => {
-    const userId = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
-    const user = await usersService.update(userId, req.body, req.user!.id);
+    const { id } = req.validatedParams as { id: string };
+    const user = await usersService.update(id, req.body, req.user!.id);
     return sendSuccess(res, user, 'User updated');
   }),
 };
