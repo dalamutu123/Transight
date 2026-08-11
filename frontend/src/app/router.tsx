@@ -3,6 +3,7 @@ import { useAuthStore } from '@/store/authStore';
 import { AppLayout } from '@/layouts/AppLayout';
 import LoginPage from '@/pages/LoginPage';
 import DashboardPage from '@/pages/DashboardPage';
+import TransactionsPage from '@/pages/TransactionsPage';
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
@@ -32,7 +33,7 @@ export const router = createBrowserRouter([
     ),
     children: [
       { index: true, element: <DashboardPage /> },
-      { path: 'transactions', element: <Placeholder title="Transactions" /> },
+      { path: 'transactions', element: <TransactionsPage /> },
       { path: 'transactions/:id', element: <Placeholder title="Transaction Details" /> },
       { path: 'uploads', element: <Placeholder title="Uploads" /> },
       { path: 'reports', element: <Placeholder title="Reports" /> },
