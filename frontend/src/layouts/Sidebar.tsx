@@ -18,7 +18,7 @@ import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettingsOutlin
 const DRAWER_WIDTH = 240;
 
 const navItems = [
-  { label: 'Dashboard', path: '/', icon: <DashboardIcon /> },
+  { label: 'Dashboard', path: '/dashboard', icon: <DashboardIcon /> },
   { label: 'Transactions', path: '/transactions', icon: <ReceiptLongIcon /> },
   { label: 'Uploads', path: '/uploads', icon: <UploadFileIcon /> },
   { label: 'Reports', path: '/reports', icon: <SummarizeIcon /> },
@@ -52,8 +52,7 @@ export function Sidebar() {
           <ListItemButton
             key={item.path}
             component={NavLink}
-            to={item.path}
-            end={item.path === '/'}
+            to={item.path}            
             sx={{
               borderRadius: '10px',
               mb: 0.5,

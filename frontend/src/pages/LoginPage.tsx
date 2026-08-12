@@ -32,7 +32,7 @@ export default function LoginPage() {
     try {
       const result = await authService.login(data);
       setAuth(result.token, result.user);
-      navigate('/');
+      navigate('/dashboard');
     } catch {
       setServerError('Invalid email or password. Please try again.');
     } finally {

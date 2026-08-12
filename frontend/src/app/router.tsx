@@ -1,6 +1,7 @@
 import { createBrowserRouter, Navigate } from 'react-router-dom';
 import { useAuthStore } from '@/store/authStore';
 import { AppLayout } from '@/layouts/AppLayout';
+import LandingPage from '@/pages/LandingPage';
 import LoginPage from '@/pages/LoginPage';
 import DashboardPage from '@/pages/DashboardPage';
 import TransactionsPage from '@/pages/TransactionsPage';
@@ -19,33 +20,30 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
 }
 
-// Simple placeholder so every route resolves to something visible
-// until each page gets built out on its scheduled day.
-// function Placeholder({ title }: { title: string }) {
-//   return <div className="text-charcoal text-lg font-medium">{title} — coming soon</div>;
-// }
-
 export const router = createBrowserRouter([
+  {
+    path: '/',
+    element: <LandingPage />,
+  },
   {
     path: '/login',
     element: <LoginPage />,
   },
   {
-    path: '/',
     element: (
       <ProtectedRoute>
         <AppLayout />
       </ProtectedRoute>
     ),
     children: [
-      { index: true, element: <DashboardPage /> },
-      { path: 'transactions', element: <TransactionsPage /> },
-      { path: 'transactions/:id', element: <TransactionDetailsPage /> },
-      { path: 'uploads', element: <UploadsPage /> },
-      { path: 'reports', element: <ReportsPage /> },
-      { path: 'audit-logs', element: <AuditLogsPage /> },
-      { path: 'administration', element: <AdministrationPage /> },
-      { path: 'profile', element: <ProfilePage /> },
+      { path: '/dashboard', element: <DashboardPage /> },
+      { path: '/transactions', element: <TransactionsPage /> },
+      { path: '/transactions/:id', element: <TransactionDetailsPage /> },
+      { path: '/uploads', element: <UploadsPage /> },
+      { path: '/reports', element: <ReportsPage /> },
+      { path: '/audit-logs', element: <AuditLogsPage /> },
+      { path: '/administration', element: <AdministrationPage /> },
+      { path: '/profile', element: <ProfilePage /> },
     ],
   },
 ]);
