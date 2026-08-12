@@ -6,6 +6,8 @@ import DashboardPage from '@/pages/DashboardPage';
 import TransactionsPage from '@/pages/TransactionsPage';
 import TransactionDetailsPage from '@/pages/TransactionDetailsPage';
 import UploadsPage from '@/pages/UploadsPage';
+import ReportsPage from '@/pages/ReportsPage';
+import AuditLogsPage from '@/pages/AuditLogsPage';
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
@@ -38,8 +40,8 @@ export const router = createBrowserRouter([
       { path: 'transactions', element: <TransactionsPage /> },
       { path: 'transactions/:id', element: <TransactionDetailsPage /> },
       { path: 'uploads', element: <UploadsPage /> },
-      { path: 'reports', element: <Placeholder title="Reports" /> },
-      { path: 'audit-logs', element: <Placeholder title="Audit Logs" /> },
+      { path: 'reports', element: <ReportsPage /> },
+      { path: 'audit-logs', element: <AuditLogsPage /> },
       { path: 'administration', element: <Placeholder title="Administration" /> },
       { path: 'profile', element: <Placeholder title="Profile" /> },
     ],
