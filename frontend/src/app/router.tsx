@@ -8,6 +8,8 @@ import TransactionDetailsPage from '@/pages/TransactionDetailsPage';
 import UploadsPage from '@/pages/UploadsPage';
 import ReportsPage from '@/pages/ReportsPage';
 import AuditLogsPage from '@/pages/AuditLogsPage';
+import AdministrationPage from '@/pages/AdministrationPage';
+import ProfilePage from '@/pages/ProfilePage';
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
@@ -19,9 +21,9 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
 
 // Simple placeholder so every route resolves to something visible
 // until each page gets built out on its scheduled day.
-function Placeholder({ title }: { title: string }) {
-  return <div className="text-charcoal text-lg font-medium">{title} — coming soon</div>;
-}
+// function Placeholder({ title }: { title: string }) {
+//   return <div className="text-charcoal text-lg font-medium">{title} — coming soon</div>;
+// }
 
 export const router = createBrowserRouter([
   {
@@ -42,8 +44,8 @@ export const router = createBrowserRouter([
       { path: 'uploads', element: <UploadsPage /> },
       { path: 'reports', element: <ReportsPage /> },
       { path: 'audit-logs', element: <AuditLogsPage /> },
-      { path: 'administration', element: <Placeholder title="Administration" /> },
-      { path: 'profile', element: <Placeholder title="Profile" /> },
+      { path: 'administration', element: <AdministrationPage /> },
+      { path: 'profile', element: <ProfilePage /> },
     ],
   },
 ]);
