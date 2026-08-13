@@ -1,11 +1,13 @@
 import { useState } from 'react';
 import { Paper, Typography, TextField, MenuItem, Button, ToggleButtonGroup, ToggleButton } from '@mui/material';
 import { toast } from 'sonner';
+import { useQueryClient } from '@tanstack/react-query';
 import { reportsService } from '@/services/reports.service';
 
 const STATUSES = ['Successful', 'Failed', 'Pending', 'Processing'];
 
 export function ReportGeneratorForm() {
+  const queryClient = useQueryClient();
   const [format, setFormat] = useState<'CSV' | 'EXCEL'>('CSV');
   const [status, setStatus] = useState('');
   const [bankCode, setBankCode] = useState('');
@@ -25,6 +27,7 @@ export function ReportGeneratorForm() {
         endDate: endDate ? new Date(endDate).toISOString() : undefined,
       });
       toast.success('Report generated and downloaded');
+      queryClient.invalidateQueries({ queryKey: ['reports-history'] });
     } catch {
       toast.error('Failed to generate report. Please try again.');
     } finally {
