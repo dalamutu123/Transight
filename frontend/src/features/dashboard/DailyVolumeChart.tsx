@@ -9,7 +9,7 @@ interface Props {
 
 export function DailyVolumeChart({ data, loading }: Props) {
   return (
-    <Paper elevation={0} className="p-5 rounded-card border border-gray-200 flex-1 min-w-100">
+    <Paper elevation={0} className="card-hover p-5 rounded-card border border-gray-200 flex-1 min-w-100">
       <Typography variant="subtitle1" className="font-semibold mb-4">
         Daily Transaction Volume (30 days)
       </Typography>

@@ -15,7 +15,7 @@ const statusColor: Record<string, 'success' | 'warning' | 'error' | 'default'> =
 
 export function RecentUploads({ uploads, loading }: Props) {
   return (
-    <Paper elevation={0} className="p-5 rounded-card border border-gray-200 flex-1 min-w-[320px]">
+    <Paper elevation={0} className="card-hover p-5 rounded-card border border-gray-200 flex-1 min-w-[320px]">
       <Typography variant="subtitle1" className="font-semibold mb-4">
         Recent Uploads
       </Typography>
@@ -33,7 +33,7 @@ export function RecentUploads({ uploads, loading }: Props) {
       ) : (
         <div className="flex flex-col divide-y divide-gray-100">
           {uploads.map((upload) => (
-            <div key={upload.id} className="py-3 flex items-center justify-between gap-3">
+            <div key={upload.id} className="list-item-hover py-3 px-2 flex items-center justify-between gap-3">
               <div className="min-w-0">
                 <Typography variant="body2" className="font-medium truncate">
                   {upload.filename}

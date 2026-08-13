@@ -44,7 +44,7 @@ export function TransactionFilters({ onApply }: Props) {
   };
 
   return (
-    <Paper elevation={0} className="p-4 rounded-card border border-gray-200">
+    <Paper elevation={0} className="card-hover p-4 rounded-card border border-gray-200">
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
         <TextField
           label="Reference"

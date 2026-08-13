@@ -12,7 +12,7 @@ const COLORS = ['#0D9488', '#14B8A6', '#2DD4BF', '#5EEAD4', '#0F766E', '#134E4A'
 
 export function ResponseCodeChart({ data, loading }: Props) {
   return (
-    <Paper elevation={0} className="p-5 rounded-card border border-gray-200 flex-1 min-w-75">
+    <Paper elevation={0} className="card-hover p-5 rounded-card border border-gray-200 flex-1 min-w-75">
       <Typography variant="subtitle1" className="font-semibold mb-4">
         Transactions by Response Code
       </Typography>

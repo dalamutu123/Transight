@@ -4,7 +4,7 @@ import type { UploadResult } from '@/services/uploads.service';
 export function UploadResultSummary({ result }: { result: UploadResult }) {
   return (
     <div className="flex flex-col gap-4">
-      <Paper elevation={0} className="p-5 rounded-card border border-gray-200">
+      <Paper elevation={0} className="card-hover p-5 rounded-card border border-gray-200">
         <Typography variant="subtitle1" className="font-semibold mb-3">
           Upload Summary — {result.upload.filename}
         </Typography>
@@ -31,7 +31,7 @@ export function UploadResultSummary({ result }: { result: UploadResult }) {
       </Paper>
 
       {result.rejected.length > 0 && (
-        <Paper elevation={0} className="p-5 rounded-card border border-gray-200">
+        <Paper elevation={0} className=" card-hover p-5 rounded-card border border-gray-200">
           <Typography variant="subtitle1" className="font-semibold mb-3">
             Rejected Records
           </Typography>

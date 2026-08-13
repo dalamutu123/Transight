@@ -59,7 +59,7 @@ export default function LandingPage() {
       <section className="max-w-5xl mx-auto w-full px-6 pb-16">
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
           {features.map((f) => (
-            <div key={f.title} className="bg-white rounded-card p-6 border border-gray-200 text-left">
+            <div key={f.title} className="card-hover bg-white rounded-card p-6 border border-gray-200 text-left">
               <div className="text-royal-purple mb-3">{f.icon}</div>
               <Typography variant="subtitle1" className="font-semibold mb-1">
                 {f.title}

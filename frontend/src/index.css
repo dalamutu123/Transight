@@ -22,3 +22,21 @@
 body {
   @apply bg-slate-gray text-charcoal font-sans antialiased;
 }
+
+.card-hover {
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+
+.card-hover:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px -6px rgba(17, 19, 68, 0.15);
+}
+
+.list-item-hover {
+  transition: background-color 0.15s ease;
+  border-radius: 8px;
+}
+
+.list-item-hover:hover {
+  background-color: var(--color-slate-gray);
+}

@@ -33,7 +33,7 @@ export function ReportGeneratorForm() {
   };
 
   return (
-    <Paper elevation={0} className="p-5 rounded-card border border-gray-200">
+    <Paper elevation={0} className="card-hover p-5 rounded-card border border-gray-200">
       <Typography variant="subtitle1" className="font-semibold mb-4">
         Generate Report
       </Typography>

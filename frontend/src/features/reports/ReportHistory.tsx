@@ -10,7 +10,7 @@ export function ReportHistory() {
   });
 
   return (
-    <Paper elevation={0} className="p-5 rounded-card border border-gray-200">
+    <Paper elevation={0} className="card-hover p-5 rounded-card border border-gray-200">
       <Typography variant="subtitle1" className="font-semibold mb-4">
         Recent Reports
       </Typography>
@@ -28,7 +28,7 @@ export function ReportHistory() {
       ) : (
         <div className="flex flex-col divide-y divide-gray-100">
           {data.items.map((report) => (
-            <div key={report.id} className="py-3 flex items-center justify-between gap-3">
+            <div key={report.id} className="list-item-hover py-3 px-2 flex items-center justify-between gap-3">
               <div>
                 <Typography variant="body2" className="font-medium">
                   {report.type.replace(/-/g, ' ')}
