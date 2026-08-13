@@ -16,7 +16,7 @@ export const auditRepository = {
   }) {
     const where: Prisma.AuditLogWhereInput = {
       userId: filters.userId,
-      action: filters.action ? { contains: filters.action, mode: 'insensitive' } : undefined,
+      action: filters.action,
       createdAt: {
         gte: filters.startDate,
         lte: filters.endDate,
