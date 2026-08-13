@@ -15,7 +15,7 @@ import {
 } from '@mui/material';
 import dayjs from 'dayjs';
 import { useAuditLogs } from '@/features/audit/useAuditLogs';
-import { actionColor } from '@/features/audit/actionColor';
+import { actionColor, actionLabel } from '@/features/audit/actionColor';
 
 const ACTIONS = ['LOGIN', 'LOGIN_FAILED', 'UPLOAD_CSV', 'GENERATE_REPORT', 'CREATE_USER', 'UPDATE_USER'];
 
@@ -50,11 +50,11 @@ export default function AuditLogsPage() {
             setAction(e.target.value);
             setPage(1);
           }}
-          className="min-w-55"
+          sx={{ minWidth: 220 }}
         >
           <MenuItem value="">All actions</MenuItem>
           {ACTIONS.map((a) => (
-            <MenuItem key={a} value={a}>{a.replace(/_/g, ' ')}</MenuItem>
+            <MenuItem key={a} value={a}>{actionLabel[a]}</MenuItem>
           ))}
         </TextField>
       </Paper>
@@ -94,7 +94,7 @@ export default function AuditLogsPage() {
                     <TableRow key={log.id} hover>
                       <TableCell>
                         <Chip
-                          label={log.action.replace(/_/g, ' ')}
+                          label={actionLabel[log.action] ?? log.action}
                           size="small"
                           color={actionColor[log.action] ?? 'default'}
                         />
