@@ -13,7 +13,7 @@ export default function TransactionsPage() {
     sortOrder: 'desc',
   });
 
-  const { data, isLoading, isError } = useTransactions(filters);
+  const { data, isLoading, isFetching, isError } = useTransactions(filters);
 
   const handleApplyFilters = (newFilters: Partial<TransactionSearchFilters>) => {
     setFilters((prev) => ({ ...prev, ...newFilters, page: 1 }));
@@ -40,7 +40,12 @@ export default function TransactionsPage() {
         <div className="text-error text-sm">Could not load transactions. Please try again.</div>
       ) : (
         <>
-          <TransactionsTable data={data?.items ?? []} loading={isLoading} />
+          <div
+            className="transition-opacity duration-200"
+            style={{ opacity: isFetching && !isLoading ? 0.5 : 1 }}
+          >
+            <TransactionsTable data={data?.items ?? []} loading={isLoading} />
+          </div>
           {data && data.pagination.totalPages > 1 && (
             <div className="flex justify-center">
               <MuiPagination

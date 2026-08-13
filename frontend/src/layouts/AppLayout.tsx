@@ -1,7 +1,7 @@
-import { Outlet } from 'react-router-dom';
 import { Box, Toolbar } from '@mui/material';
 import { Sidebar, DRAWER_WIDTH } from './Sidebar';
 import { Header } from './Header';
+import { PageTransition } from '@/components/PageTransition';
 
 export function AppLayout() {
   return (
@@ -13,8 +13,8 @@ export function AppLayout() {
         sx={{ flexGrow: 1, width: `calc(100% - ${DRAWER_WIDTH}px)` }}
         className="p-6"
       >
-        <Toolbar /> {/* spacer to push content below the fixed AppBar */}
-        <Outlet />
+        <Toolbar />
+        <PageTransition />
       </Box>
     </Box>
   );

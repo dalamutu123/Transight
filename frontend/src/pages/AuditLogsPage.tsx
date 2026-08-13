@@ -23,7 +23,11 @@ export default function AuditLogsPage() {
   const [page, setPage] = useState(1);
   const [action, setAction] = useState('');
 
-  const { data, isLoading, isError } = useAuditLogs({ page, limit: 20, action: action || undefined });
+  const { data, isLoading, isFetching, isError } = useAuditLogs({
+    page,
+    limit: 20,
+    action: action || undefined,
+  });
 
   return (
     <div className="flex flex-col gap-4">
@@ -71,30 +75,39 @@ export default function AuditLogsPage() {
         </Paper>
       ) : (
         <>
-          <Paper elevation={0} className="rounded-card border border-gray-200 overflow-hidden">
-            <Table size="small">
-              <TableHead>
-                <TableRow className="bg-slate-gray">
-                  <TableCell className="font-semibold">Action</TableCell>
-                  <TableCell className="font-semibold">User</TableCell>
-                  <TableCell className="font-semibold">Description</TableCell>
-                  <TableCell className="font-semibold">Date</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {data.items.map((log) => (
-                  <TableRow key={log.id} hover>
-                    <TableCell>
-                      <Chip label={log.action.replace(/_/g, ' ')} size="small" color={actionColor[log.action] ?? 'default'} />
-                    </TableCell>
-                    <TableCell>{log.user.firstName} {log.user.lastName}</TableCell>
-                    <TableCell>{log.description ?? '—'}</TableCell>
-                    <TableCell>{dayjs(log.createdAt).format('MMM D, YYYY · h:mm A')}</TableCell>
+          <div
+            className="transition-opacity duration-200"
+            style={{ opacity: isFetching && !isLoading ? 0.5 : 1 }}
+          >
+            <Paper elevation={0} className="rounded-card border border-gray-200 overflow-hidden">
+              <Table size="small">
+                <TableHead>
+                  <TableRow className="bg-slate-gray">
+                    <TableCell className="font-semibold">Action</TableCell>
+                    <TableCell className="font-semibold">User</TableCell>
+                    <TableCell className="font-semibold">Description</TableCell>
+                    <TableCell className="font-semibold">Date</TableCell>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </Paper>
+                </TableHead>
+                <TableBody>
+                  {data.items.map((log) => (
+                    <TableRow key={log.id} hover>
+                      <TableCell>
+                        <Chip
+                          label={log.action.replace(/_/g, ' ')}
+                          size="small"
+                          color={actionColor[log.action] ?? 'default'}
+                        />
+                      </TableCell>
+                      <TableCell>{log.user.firstName} {log.user.lastName}</TableCell>
+                      <TableCell>{log.description ?? '—'}</TableCell>
+                      <TableCell>{dayjs(log.createdAt).format('MMM D, YYYY · h:mm A')}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </Paper>
+          </div>
 
           {data.pagination.totalPages > 1 && (
             <div className="flex justify-center">

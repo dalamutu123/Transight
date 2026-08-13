@@ -1,16 +1,19 @@
+import { lazy, Suspense } from 'react';
 import { createBrowserRouter, Navigate } from 'react-router-dom';
 import { useAuthStore } from '@/store/authStore';
 import { AppLayout } from '@/layouts/AppLayout';
-import LandingPage from '@/pages/LandingPage';
-import LoginPage from '@/pages/LoginPage';
-import DashboardPage from '@/pages/DashboardPage';
-import TransactionsPage from '@/pages/TransactionsPage';
-import TransactionDetailsPage from '@/pages/TransactionDetailsPage';
-import UploadsPage from '@/pages/UploadsPage';
-import ReportsPage from '@/pages/ReportsPage';
-import AuditLogsPage from '@/pages/AuditLogsPage';
-import AdministrationPage from '@/pages/AdministrationPage';
-import ProfilePage from '@/pages/ProfilePage';
+import { PageLoader } from '@/components/PageLoader';
+
+const LandingPage = lazy(() => import('@/pages/LandingPage'));
+const LoginPage = lazy(() => import('@/pages/LoginPage'));
+const DashboardPage = lazy(() => import('@/pages/DashboardPage'));
+const TransactionsPage = lazy(() => import('@/pages/TransactionsPage'));
+const TransactionDetailsPage = lazy(() => import('@/pages/TransactionDetailsPage'));
+const UploadsPage = lazy(() => import('@/pages/UploadsPage'));
+const ReportsPage = lazy(() => import('@/pages/ReportsPage'));
+const AuditLogsPage = lazy(() => import('@/pages/AuditLogsPage'));
+const AdministrationPage = lazy(() => import('@/pages/AdministrationPage'));
+const ProfilePage = lazy(() => import('@/pages/ProfilePage'));
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
@@ -20,14 +23,18 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
 }
 
+function withSuspense(element: React.ReactNode) {
+  return <Suspense fallback={<PageLoader />}>{element}</Suspense>;
+}
+
 export const router = createBrowserRouter([
   {
     path: '/',
-    element: <LandingPage />,
+    element: withSuspense(<LandingPage />),
   },
   {
     path: '/login',
-    element: <LoginPage />,
+    element: withSuspense(<LoginPage />),
   },
   {
     element: (
@@ -36,14 +43,14 @@ export const router = createBrowserRouter([
       </ProtectedRoute>
     ),
     children: [
-      { path: '/dashboard', element: <DashboardPage /> },
-      { path: '/transactions', element: <TransactionsPage /> },
-      { path: '/transactions/:id', element: <TransactionDetailsPage /> },
-      { path: '/uploads', element: <UploadsPage /> },
-      { path: '/reports', element: <ReportsPage /> },
-      { path: '/audit-logs', element: <AuditLogsPage /> },
-      { path: '/administration', element: <AdministrationPage /> },
-      { path: '/profile', element: <ProfilePage /> },
+      { path: '/dashboard', element: withSuspense(<DashboardPage />) },
+      { path: '/transactions', element: withSuspense(<TransactionsPage />) },
+      { path: '/transactions/:id', element: withSuspense(<TransactionDetailsPage />) },
+      { path: '/uploads', element: withSuspense(<UploadsPage />) },
+      { path: '/reports', element: withSuspense(<ReportsPage />) },
+      { path: '/audit-logs', element: withSuspense(<AuditLogsPage />) },
+      { path: '/administration', element: withSuspense(<AdministrationPage />) },
+      { path: '/profile', element: withSuspense(<ProfilePage />) },
     ],
   },
 ]);
