@@ -1,9 +1,10 @@
-import { Navigate, useNavigate } from 'react-router-dom';
+import { Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { Button, Typography } from '@mui/material';
 import DashboardIcon from '@mui/icons-material/DashboardOutlined';
 import UploadFileIcon from '@mui/icons-material/UploadFileOutlined';
 import SummarizeIcon from '@mui/icons-material/SummarizeOutlined';
 import { useAuthStore } from '@/store/authStore';
+import { LoginModal } from '@/features/auth/LoginModal';
 
 const features = [
   {
@@ -24,8 +25,10 @@ const features = [
 ];
 
 export default function LandingPage() {
-  const navigate = useNavigate();
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+  const location = useLocation();
+  const navigate = useNavigate();
+  const isLoginOpen = location.pathname === '/login';
 
   // Already logged in? Skip the landing page and go straight to the app.
   if (isAuthenticated) {
@@ -34,13 +37,10 @@ export default function LandingPage() {
 
   return (
     <div className="min-h-screen bg-slate-gray flex flex-col">
-      <header className="flex items-center justify-between px-8 py-6 max-w-6xl mx-auto w-full">
+      <header className="flex items-center px-8 py-6 max-w-6xl mx-auto w-full">
         <Typography variant="h6" color="secondary" className="font-bold">
           Transight
         </Typography>
-        <Button variant="contained" color="primary" onClick={() => navigate('/login')}>
-          Log In
-        </Button>
       </header>
 
       <main className="flex-1 flex flex-col items-center justify-center text-center px-6 py-16">
@@ -52,7 +52,7 @@ export default function LandingPage() {
           secure platform.
         </Typography>
         <Button variant="contained" color="primary" size="large" onClick={() => navigate('/login')}>
-          Log In to Continue
+          Login
         </Button>
       </main>
 
@@ -75,6 +75,8 @@ export default function LandingPage() {
       <footer className="text-center py-6 text-cool-gray text-sm">
         © {new Date().getFullYear()} Transight. Internal use only.
       </footer>
+
+      <LoginModal open={isLoginOpen} onClose={() => navigate('/')} />
     </div>
   );
 }

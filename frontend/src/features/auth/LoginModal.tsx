@@ -3,7 +3,18 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useNavigate } from 'react-router-dom';
-import { Button, TextField, Typography, Paper, Alert } from '@mui/material';
+import {
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Button,
+  TextField,
+  Typography,
+  Alert,
+  IconButton,
+} from '@mui/material';
+import CloseIcon from '@mui/icons-material/Close';
 import { authService } from '@/services/auth.service';
 import { useAuthStore } from '@/store/authStore';
 
@@ -14,7 +25,12 @@ const loginSchema = z.object({
 
 type LoginFormData = z.infer<typeof loginSchema>;
 
-export default function LoginPage() {
+interface Props {
+  open: boolean;
+  onClose: () => void;
+}
+
+export function LoginModal({ open, onClose }: Props) {
   const navigate = useNavigate();
   const setAuth = useAuthStore((s) => s.setAuth);
   const [serverError, setServerError] = useState<string | null>(null);
@@ -23,8 +39,15 @@ export default function LoginPage() {
   const {
     register,
     handleSubmit,
+    reset,
     formState: { errors },
   } = useForm<LoginFormData>({ resolver: zodResolver(loginSchema) });
+
+  const handleClose = () => {
+    setServerError(null);
+    reset();
+    onClose();
+  };
 
   const onSubmit = async (data: LoginFormData) => {
     setServerError(null);
@@ -32,6 +55,8 @@ export default function LoginPage() {
     try {
       const result = await authService.login(data);
       setAuth(result.token, result.user);
+      reset();
+      onClose();
       navigate('/dashboard');
     } catch {
       setServerError('Invalid email or password. Please try again.');
@@ -41,26 +66,41 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-slate-gray">
-      <Paper elevation={2} className="w-full max-w-sm p-8 rounded-card">
-        <Typography variant="h5" color="secondary" className="mb-1 font-semibold">
-          Transight
-        </Typography>
-        <Typography variant="body2" color="text.secondary" className="mb-6">
-          Sign in to your operations dashboard
-        </Typography>
+    <Dialog
+      open={open}
+      onClose={handleClose}
+      fullWidth
+      maxWidth="xs"
+      slotProps={{
+        backdrop: {
+          sx: { backdropFilter: 'blur(4px)', backgroundColor: 'rgba(17, 19, 68, 0.35)' },
+        },
+        paper: { sx: { borderRadius: 'var(--radius-card)' } },
+      }}
+    >
+      <DialogTitle className="flex items-center justify-between">
+        <div>
+          <Typography variant="h6" color="secondary" className="font-semibold">
+            Transight
+          </Typography>
+          <Typography variant="body2" color="text.secondary">
+            Sign in to your operations dashboard
+          </Typography>
+        </div>
+        <IconButton onClick={handleClose} size="small">
+          <CloseIcon fontSize="small" />
+        </IconButton>
+      </DialogTitle>
 
-        {serverError && (
-          <Alert severity="error" className="mb-4">
-            {serverError}
-          </Alert>
-        )}
+      <form onSubmit={handleSubmit(onSubmit)}>
+        <DialogContent className="flex flex-col gap-4">
+          {serverError && <Alert severity="error">{serverError}</Alert>}
 
-        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
           <TextField
             label="Email"
             type="email"
             fullWidth
+            autoFocus
             {...register('email')}
             error={!!errors.email}
             helperText={errors.email?.message}
@@ -73,11 +113,16 @@ export default function LoginPage() {
             error={!!errors.password}
             helperText={errors.password?.message}
           />
-          <Button type="submit" variant="contained" color="primary" fullWidth disabled={isSubmitting}>
+        </DialogContent>
+        <DialogActions className="px-6 pb-5">
+          <Button onClick={handleClose} disabled={isSubmitting}>
+            Cancel
+          </Button>
+          <Button type="submit" variant="contained" color="primary" disabled={isSubmitting}>
             {isSubmitting ? 'Signing in...' : 'Sign in'}
           </Button>
-        </form>
-      </Paper>
-    </div>
+        </DialogActions>
+      </form>
+    </Dialog>
   );
 }

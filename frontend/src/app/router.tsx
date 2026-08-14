@@ -5,7 +5,6 @@ import { AppLayout } from '@/layouts/AppLayout';
 import { PageLoader } from '@/components/PageLoader';
 
 const LandingPage = lazy(() => import('@/pages/LandingPage'));
-const LoginPage = lazy(() => import('@/pages/LoginPage'));
 const DashboardPage = lazy(() => import('@/pages/DashboardPage'));
 const TransactionsPage = lazy(() => import('@/pages/TransactionsPage'));
 const TransactionDetailsPage = lazy(() => import('@/pages/TransactionDetailsPage'));
@@ -34,7 +33,7 @@ export const router = createBrowserRouter([
   },
   {
     path: '/login',
-    element: withSuspense(<LoginPage />),
+    element: withSuspense(<LandingPage />),
   },
   {
     element: (
