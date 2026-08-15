@@ -14,6 +14,11 @@ interface LoginResponse {
   };
 }
 
+interface ChangePasswordPayload {
+  currentPassword: string;
+  newPassword: string;
+}
+
 export const authService = {
   login: (payload: LoginPayload) =>
     api.post<LoginResponse>('/auth/login', payload).then((res) => res.data.data),
@@ -21,4 +26,7 @@ export const authService = {
   logout: () => api.post('/auth/logout'),
 
   me: () => api.get<{ success: boolean; data: AuthUser }>('/auth/me').then((res) => res.data.data),
+
+  changePassword: (payload: ChangePasswordPayload) =>
+    api.post('/auth/change-password', payload),
 };

@@ -57,7 +57,7 @@ export function LoginModal({ open, onClose }: Props) {
       setAuth(result.token, result.user);
       reset();
       onClose();
-      navigate('/dashboard');
+      navigate(result.user.mustChangePassword ? '/change-password' : '/dashboard');
     } catch {
       setServerError('Invalid email or password. Please try again.');
     } finally {

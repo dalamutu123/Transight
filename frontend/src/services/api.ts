@@ -19,6 +19,15 @@ api.interceptors.response.use(
     if (error.response?.status === 401) {
       useAuthStore.getState().logout();
     }
+
+    if (
+      error.response?.status === 403 &&
+      error.response?.data?.errors?.code === 'PASSWORD_CHANGE_REQUIRED' &&
+      window.location.pathname !== '/change-password'
+    ) {
+      window.location.href = '/change-password';
+    }
+
     return Promise.reject(error);
   }
 );
