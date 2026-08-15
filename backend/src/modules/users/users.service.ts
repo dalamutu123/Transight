@@ -1,6 +1,7 @@
 import bcrypt from 'bcrypt';
 import { AppError } from '@utils/AppError';
 import { buildPagination } from '@utils/apiResponse';
+import { generateTempPassword } from '@utils/generateTempPassword';
 import { usersRepository } from './users.repository';
 import { auditService } from '@modules/audit/audit.service';
 import type { CreateUserInput, UpdateUserInput } from './users.validation';
@@ -13,6 +14,7 @@ function serializeUser(user: NonNullable<Awaited<ReturnType<typeof usersReposito
     email: user.email,
     role: user.role.name,
     isActive: user.isActive,
+    mustChangePassword: user.mustChangePassword,
     createdAt: user.createdAt,
   };
 }
@@ -24,7 +26,8 @@ export const usersService = {
       throw AppError.conflict('A user with this email already exists');
     }
 
-    const passwordHash = await bcrypt.hash(input.password, 12);
+    const tempPassword = generateTempPassword();
+    const passwordHash = await bcrypt.hash(tempPassword, 12);
 
     const user = await usersRepository.create({
       firstName: input.firstName,
@@ -32,15 +35,18 @@ export const usersService = {
       email: input.email,
       passwordHash,
       roleId: input.roleId,
+      mustChangePassword: true,
     });
 
     await auditService.record({
       userId: actorId,
       action: 'CREATE_USER',
-      description: `Created user ${user.email}`,
+      description: `Created user ${user.email} with role ${user.role.name}`,
     });
 
-    return serializeUser(user);
+    // tempPassword is only ever returned here, once. It is not
+    // recoverable afterward — the admin must relay it out-of-band.
+    return { ...serializeUser(user), tempPassword };
   },
 
   async list(page: number, limit: number) {

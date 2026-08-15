@@ -4,7 +4,7 @@ import { env } from '@config/env';
 import { AppError } from '@utils/AppError';
 import { authRepository } from './auth.repository';
 import { auditService } from '@modules/audit/audit.service';
-import type { LoginInput } from './auth.validation';
+import type { LoginInput, ChangePasswordInput } from './auth.validation';
 
 export const authService = {
   async login(input: LoginInput, ipAddress?: string) {
@@ -47,6 +47,7 @@ export const authService = {
         lastName: user.lastName,
         email: user.email,
         role: user.role.name,
+        mustChangePassword: user.mustChangePassword,
       },
     };
   },
@@ -64,6 +65,31 @@ export const authService = {
       lastName: user.lastName,
       email: user.email,
       role: user.role.name,
+      mustChangePassword: user.mustChangePassword,
     };
+  },
+
+  async changePassword(userId: string, input: ChangePasswordInput) {
+    const user = await authRepository.findUserById(userId);
+
+    if (!user) {
+      throw AppError.notFound('User not found');
+    }
+
+    const currentMatches = await bcrypt.compare(input.currentPassword, user.passwordHash);
+    if (!currentMatches) {
+      throw AppError.badRequest('Current password is incorrect');
+    }
+
+    const newPasswordHash = await bcrypt.hash(input.newPassword, 12);
+    await authRepository.updatePassword(userId, newPasswordHash);
+
+    await auditService.record({
+      userId: user.id,
+      action: 'PASSWORD_CHANGED',
+      description: `${user.email} changed their password`,
+    });
+
+    return { success: true };
   },
 };

@@ -17,4 +17,9 @@ export const authController = {
     const user = await authService.getCurrentUser(req.user!.id);
     return sendSuccess(res, user);
   }),
+
+  changePassword: asyncHandler(async (req: Request, res: Response) => {
+    await authService.changePassword(req.user!.id, req.body);
+    return sendSuccess(res, null, 'Password changed successfully');
+  }),
 };

@@ -59,6 +59,7 @@ async function main() {
         email: adminEmail,
         passwordHash,
         roleId: roles['Administrator'],
+        mustChangePassword: false, // seeded dev account — skip forced change
       },
     });
     console.log(`Default administrator created: ${adminEmail} / ChangeMe123! (change immediately)`);

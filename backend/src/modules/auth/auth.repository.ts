@@ -14,4 +14,11 @@ export const authRepository = {
       include: { role: true },
     });
   },
+
+  updatePassword(id: string, passwordHash: string) {
+    return prisma.user.update({
+      where: { id },
+      data: { passwordHash, mustChangePassword: false },
+    });
+  },
 };

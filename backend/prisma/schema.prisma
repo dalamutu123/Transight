@@ -25,16 +25,17 @@ model Role {
 }
 
 model User {
-  id           String    @id @default(uuid())
-  firstName    String    @map("first_name")
-  lastName     String    @map("last_name")
-  email        String    @unique
-  passwordHash String    @map("password_hash")
-  roleId       String    @map("role_id")
-  isActive     Boolean   @default(true) @map("is_active")
-  deletedAt    DateTime? @map("deleted_at") // soft delete
-  createdAt    DateTime  @default(now()) @map("created_at")
-  updatedAt    DateTime  @updatedAt @map("updated_at")
+  id                 String    @id @default(uuid())
+  firstName          String    @map("first_name")
+  lastName           String    @map("last_name")
+  email              String    @unique
+  passwordHash       String    @map("password_hash")
+  roleId             String    @map("role_id")
+  isActive           Boolean   @default(true) @map("is_active")
+  mustChangePassword Boolean   @default(true) @map("must_change_password")
+  deletedAt          DateTime? @map("deleted_at") // soft delete
+  createdAt          DateTime  @default(now()) @map("created_at")
+  updatedAt          DateTime  @updatedAt @map("updated_at")
 
   role      Role       @relation(fields: [roleId], references: [id])
   uploads   Upload[]

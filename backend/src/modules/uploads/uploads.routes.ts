@@ -1,6 +1,7 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import { uploadsController } from './uploads.controller';
 import { authenticate } from '@middleware/authenticate';
+import { requirePasswordChangeComplete } from '@middleware/requirePasswordChange';
 import { authorize } from '@middleware/authorize';
 import { validate } from '@middleware/validate';
 import { csvUpload, handleMulterError } from './uploads.multer';
@@ -24,18 +25,32 @@ function uploadMiddleware(req: Request, res: Response, next: NextFunction) {
 router.post(
   '/',
   authenticate,
+  requirePasswordChangeComplete,
   authorize('Administrator', 'Operations User'),
   uploadMiddleware,
   uploadsController.uploadCsv
 );
 
-router.get('/', authenticate, validate({ query: uploadHistoryQuerySchema }), uploadsController.getHistory);
+router.get(
+  '/',
+  authenticate,
+  requirePasswordChangeComplete,
+  validate({ query: uploadHistoryQuerySchema }),
+  uploadsController.getHistory
+);
 
-router.get('/:id', authenticate, validate({ params: uploadIdParamSchema }), uploadsController.getById);
+router.get(
+  '/:id',
+  authenticate,
+  requirePasswordChangeComplete,
+  validate({ params: uploadIdParamSchema }),
+  uploadsController.getById
+);
 
 router.get(
   '/:id/rejected',
   authenticate,
+  requirePasswordChangeComplete,
   validate({ params: uploadIdParamSchema }),
   uploadsController.getRejected
 );

@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { usersController } from './users.controller';
 import { authenticate } from '@middleware/authenticate';
+import { requirePasswordChangeComplete } from '@middleware/requirePasswordChange';
 import { authorize } from '@middleware/authorize';
 import { validate } from '@middleware/validate';
 import {
@@ -12,11 +13,19 @@ import {
 
 const router = Router();
 
-router.get('/', authenticate, authorize('Administrator'), validate({ query: userListQuerySchema }), usersController.list);
+router.get(
+  '/',
+  authenticate,
+  requirePasswordChangeComplete,
+  authorize('Administrator'),
+  validate({ query: userListQuerySchema }),
+  usersController.list
+);
 
 router.post(
   '/',
   authenticate,
+  requirePasswordChangeComplete,
   authorize('Administrator'),
   validate({ body: createUserSchema }),
   usersController.create
@@ -25,6 +34,7 @@ router.post(
 router.put(
   '/:id',
   authenticate,
+  requirePasswordChangeComplete,
   authorize('Administrator'),
   validate({ params: userIdParamSchema, body: updateUserSchema }),
   usersController.update
