@@ -13,6 +13,8 @@ const UploadsPage = lazy(() => import('@/pages/UploadsPage'));
 const ReportsPage = lazy(() => import('@/pages/ReportsPage'));
 const AuditLogsPage = lazy(() => import('@/pages/AuditLogsPage'));
 const AdministrationPage = lazy(() => import('@/pages/AdministrationPage'));
+const AdminUploadHistoryPage = lazy(() => import('@/pages/AdminUploadHistoryPage'));
+const SettingsPage = lazy(() => import('@/pages/SettingsPage'));
 const ProfilePage = lazy(() => import('@/pages/ProfilePage'));
 const ChangePasswordPage = lazy(() => import('@/pages/ChangePasswordPage'));
 const AccessDeniedPage = lazy(() => import('@/pages/AccessDeniedPage'));
@@ -111,6 +113,22 @@ export const router = createBrowserRouter([
         element: withSuspense(
           <RoleGuard route="administration">
             <AdministrationPage />
+          </RoleGuard>
+        ),
+      },
+      {
+        path: '/administration/upload-history',
+        element: withSuspense(
+          <RoleGuard route="uploadHistory">
+            <AdminUploadHistoryPage />
+          </RoleGuard>
+        ),
+      },
+      {
+        path: '/settings',
+        element: withSuspense(
+          <RoleGuard route="settings">
+            <SettingsPage />
           </RoleGuard>
         ),
       },

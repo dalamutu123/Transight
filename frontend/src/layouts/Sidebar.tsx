@@ -14,19 +14,28 @@ import UploadFileIcon from '@mui/icons-material/UploadFileOutlined';
 import SummarizeIcon from '@mui/icons-material/SummarizeOutlined';
 import HistoryIcon from '@mui/icons-material/HistoryOutlined';
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettingsOutlined';
+import FolderOutlinedIcon from '@mui/icons-material/FolderOutlined';
+import SettingsOutlinedIcon from '@mui/icons-material/SettingsOutlined';
+import { useAuthStore } from '@/store/authStore';
+import { getNavItemsForRole, type AppRoute } from '@/config/permissions';
 
 const DRAWER_WIDTH = 240;
 
-const navItems = [
-  { label: 'Dashboard', path: '/dashboard', icon: <DashboardIcon /> },
-  { label: 'Transactions', path: '/transactions', icon: <ReceiptLongIcon /> },
-  { label: 'Uploads', path: '/uploads', icon: <UploadFileIcon /> },
-  { label: 'Reports', path: '/reports', icon: <SummarizeIcon /> },
-  { label: 'Audit Logs', path: '/audit-logs', icon: <HistoryIcon /> },
-  { label: 'Administration', path: '/administration', icon: <AdminPanelSettingsIcon /> },
-];
+const ICONS: Record<AppRoute, React.ReactNode> = {
+  dashboard: <DashboardIcon />,
+  transactions: <ReceiptLongIcon />,
+  uploads: <UploadFileIcon />,
+  reports: <SummarizeIcon />,
+  uploadHistory: <FolderOutlinedIcon />,
+  auditLogs: <HistoryIcon />,
+  administration: <AdminPanelSettingsIcon />,
+  settings: <SettingsOutlinedIcon />,
+};
 
 export function Sidebar() {
+  const role = useAuthStore((s) => s.user?.role);
+  const navItems = getNavItemsForRole(role);
+
   return (
     <Drawer
       variant="permanent"
@@ -52,7 +61,8 @@ export function Sidebar() {
           <ListItemButton
             key={item.path}
             component={NavLink}
-            to={item.path}            
+            to={item.path}
+            end={item.path === '/administration'}
             sx={{
               borderRadius: '10px',
               mb: 0.5,
@@ -66,7 +76,7 @@ export function Sidebar() {
               },
             }}
           >
-            <ListItemIcon sx={{ color: 'inherit', minWidth: 40 }}>{item.icon}</ListItemIcon>
+            <ListItemIcon sx={{ color: 'inherit', minWidth: 40 }}>{ICONS[item.route]}</ListItemIcon>
             <ListItemText primary={item.label} />
           </ListItemButton>
         ))}
