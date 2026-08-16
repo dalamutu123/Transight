@@ -60,4 +60,75 @@ export const dashboardRepository = {
       include: { uploadedByUser: { select: { firstName: true, lastName: true } } },
     });
   },
+
+  // ---------------------------------------------------------------------
+  // Administrator dashboard queries (Doc 11 §20.2)
+  // ---------------------------------------------------------------------
+
+  async getUserCounts() {
+    const [total, active, disabled, byRole] = await Promise.all([
+      prisma.user.count({ where: { deletedAt: null } }),
+      prisma.user.count({ where: { deletedAt: null, isActive: true } }),
+      prisma.user.count({ where: { deletedAt: null, isActive: false } }),
+      prisma.user.groupBy({
+        by: ['roleId'],
+        where: { deletedAt: null },
+        _count: { _all: true },
+      }),
+    ]);
+
+    return { total, active, disabled, byRole };
+  },
+
+  getAllRoles() {
+    return prisma.role.findMany();
+  },
+
+  getRecentAuditActivity(limit: number) {
+    return prisma.auditLog.findMany({
+      orderBy: { createdAt: 'desc' },
+      take: limit,
+      include: { user: { select: { firstName: true, lastName: true, email: true } } },
+    });
+  },
+
+  getRecentFailedLogins(limit: number) {
+    return prisma.auditLog.findMany({
+      where: { action: 'LOGIN_FAILED' },
+      orderBy: { createdAt: 'desc' },
+      take: limit,
+      include: { user: { select: { firstName: true, lastName: true, email: true } } },
+    });
+  },
+
+  getSystemUploadCount() {
+    return prisma.upload.count();
+  },
+
+  // ---------------------------------------------------------------------
+  // Report Viewer dashboard queries (Doc 11 §20.4)
+  // ---------------------------------------------------------------------
+
+  getReportCounts() {
+    return prisma.report.count();
+  },
+
+  getReportCountSince(since: Date) {
+    return prisma.report.count({ where: { createdAt: { gte: since } } });
+  },
+
+  getReportsByFormat() {
+    return prisma.report.groupBy({
+      by: ['format'],
+      _count: { _all: true },
+    });
+  },
+
+  getRecentReports(limit: number) {
+    return prisma.report.findMany({
+      orderBy: { createdAt: 'desc' },
+      take: limit,
+      include: { generatedByUser: { select: { firstName: true, lastName: true } } },
+    });
+  },
 };

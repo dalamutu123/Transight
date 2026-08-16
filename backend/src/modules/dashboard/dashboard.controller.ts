@@ -8,4 +8,14 @@ export const dashboardController = {
     const summary = await dashboardService.getSummary();
     return sendSuccess(res, summary);
   }),
+
+  getAdminSummary: asyncHandler(async (_req: Request, res: Response) => {
+    const summary = await dashboardService.getAdminSummary();
+    return sendSuccess(res, summary);
+  }),
+
+  getReportViewerSummary: asyncHandler(async (_req: Request, res: Response) => {
+    const summary = await dashboardService.getReportViewerSummary();
+    return sendSuccess(res, summary);
+  }),
 };

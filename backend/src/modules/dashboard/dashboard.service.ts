@@ -43,4 +43,54 @@ export const dashboardService = {
       recentUploads,
     };
   },
+
+  async getAdminSummary() {
+    const [userCounts, roles, recentAudit, recentFailedLogins, totalUploads, recentUploads] = await Promise.all([
+      dashboardRepository.getUserCounts(),
+      dashboardRepository.getAllRoles(),
+      dashboardRepository.getRecentAuditActivity(8),
+      dashboardRepository.getRecentFailedLogins(5),
+      dashboardRepository.getSystemUploadCount(),
+      dashboardRepository.getRecentUploads(5),
+    ]);
+
+    const roleMap = new Map(roles.map((r) => [r.id, r.name]));
+
+    return {
+      kpis: {
+        totalUsers: userCounts.total,
+        activeUsers: userCounts.active,
+        disabledUsers: userCounts.disabled,
+        totalUploads,
+      },
+      usersByRole: userCounts.byRole.map((r) => ({
+        role: roleMap.get(r.roleId) ?? 'Unknown',
+        count: r._count._all,
+      })),
+      recentAuditActivity: recentAudit,
+      recentFailedLogins,
+      recentUploads,
+    };
+  },
+
+  async getReportViewerSummary() {
+    const since30Days = new Date();
+    since30Days.setDate(since30Days.getDate() - 30);
+
+    const [totalReports, reportsLast30Days, byFormat, recentReports] = await Promise.all([
+      dashboardRepository.getReportCounts(),
+      dashboardRepository.getReportCountSince(since30Days),
+      dashboardRepository.getReportsByFormat(),
+      dashboardRepository.getRecentReports(8),
+    ]);
+
+    return {
+      kpis: {
+        totalReports,
+        reportsLast30Days,
+      },
+      byFormat: byFormat.map((f) => ({ format: f.format, count: f._count._all })),
+      recentReports,
+    };
+  },
 };
