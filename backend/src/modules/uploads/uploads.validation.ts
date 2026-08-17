@@ -28,3 +28,37 @@ export type UploadHistoryQuery = z.infer<typeof uploadHistoryQuerySchema>;
 export const uploadIdParamSchema = z.object({
   id: z.string().uuid('Invalid upload id'),
 });
+
+// ---------------------------------------------------------------------------
+// Administrator Upload History (Doc 11 §21)
+// ---------------------------------------------------------------------------
+
+export const adminUploadDirectoryQuerySchema = z.object({
+  search: z.string().trim().optional(),
+});
+
+export type AdminUploadDirectoryQuery = z.infer<typeof adminUploadDirectoryQuerySchema>;
+
+export const adminUserUploadsQuerySchema = z.object({
+  page: z.coerce.number().int().positive().default(1),
+  limit: z.coerce.number().int().positive().max(100).default(20),
+});
+
+export type AdminUserUploadsQuery = z.infer<typeof adminUserUploadsQuerySchema>;
+
+export const adminUserIdParamSchema = z.object({
+  userId: z.string().uuid('Invalid user id'),
+});
+
+export const adminAllUploadsQuerySchema = z.object({
+  page: z.coerce.number().int().positive().default(1),
+  limit: z.coerce.number().int().positive().max(100).default(20),
+  userId: z.string().uuid().optional(),
+  roleId: z.string().uuid().optional(),
+  status: z.string().optional(),
+  filename: z.string().trim().optional(),
+  startDate: z.string().datetime().optional(),
+  endDate: z.string().datetime().optional(),
+});
+
+export type AdminAllUploadsQuery = z.infer<typeof adminAllUploadsQuerySchema>;

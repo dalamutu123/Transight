@@ -5,7 +5,14 @@ import { requirePasswordChangeComplete } from '@middleware/requirePasswordChange
 import { authorize } from '@middleware/authorize';
 import { validate } from '@middleware/validate';
 import { csvUpload, handleMulterError } from './uploads.multer';
-import { uploadHistoryQuerySchema, uploadIdParamSchema } from './uploads.validation';
+import {
+  uploadHistoryQuerySchema,
+  uploadIdParamSchema,
+  adminUploadDirectoryQuerySchema,
+  adminUserUploadsQuerySchema,
+  adminUserIdParamSchema,
+  adminAllUploadsQuerySchema,
+} from './uploads.validation';
 
 const router = Router();
 
@@ -21,6 +28,36 @@ function uploadMiddleware(req: Request, res: Response, next: NextFunction) {
     next();
   });
 }
+
+// Administrator Upload History (Doc 11 §21) — registered before '/:id'
+// so 'admin' is never captured as an upload id param.
+
+router.get(
+  '/admin/directory',
+  authenticate,
+  requirePasswordChangeComplete,
+  authorize('Administrator'),
+  validate({ query: adminUploadDirectoryQuerySchema }),
+  uploadsController.getAdminDirectory
+);
+
+router.get(
+  '/admin/all',
+  authenticate,
+  requirePasswordChangeComplete,
+  authorize('Administrator'),
+  validate({ query: adminAllUploadsQuerySchema }),
+  uploadsController.getAdminAllUploads
+);
+
+router.get(
+  '/admin/users/:userId',
+  authenticate,
+  requirePasswordChangeComplete,
+  authorize('Administrator'),
+  validate({ params: adminUserIdParamSchema, query: adminUserUploadsQuerySchema }),
+  uploadsController.getAdminUserHistory
+);
 
 router.post(
   '/',

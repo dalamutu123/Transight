@@ -6,6 +6,7 @@ import { buildPagination } from '@utils/apiResponse';
 import { uploadsRepository } from './uploads.repository';
 import { auditService } from '@modules/audit/audit.service';
 import { csvRowSchema } from './uploads.validation';
+import type { AdminAllUploadsQuery } from './uploads.validation';
 
 interface ParsedCsvResult {
   rawRows: Record<string, string>[];
@@ -180,5 +181,32 @@ export const uploadsService = {
   async getRejectedRecords(uploadId: string) {
     await this.getById(uploadId); // throws 404 if the upload doesn't exist
     return uploadsRepository.findRejectedByUploadId(uploadId);
+  },
+
+  // ---------------------------------------------------------------------
+  // Administrator Upload History (Doc 11 §21)
+  // ---------------------------------------------------------------------
+
+  async getAdminDirectory(search?: string) {
+    const users = await uploadsRepository.getUserDirectoryWithUploadCounts(search);
+    return users.map((u) => ({
+      id: u.id,
+      firstName: u.firstName,
+      lastName: u.lastName,
+      email: u.email,
+      role: u.role.name,
+      isActive: u.isActive,
+      uploadCount: u._count.uploads,
+    }));
+  },
+
+  async getUserUploadHistory(userId: string, page: number, limit: number) {
+    const { items, total } = await uploadsRepository.findByUserId(userId, page, limit);
+    return { items, pagination: buildPagination(page, limit, total) };
+  },
+
+  async getAllForAdmin(filters: AdminAllUploadsQuery) {
+    const { items, total } = await uploadsRepository.findAllForAdmin(filters);
+    return { items, pagination: buildPagination(filters.page, filters.limit, total) };
   },
 };
