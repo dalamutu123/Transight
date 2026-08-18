@@ -11,7 +11,7 @@ const TransactionsPage = lazy(() => import('@/pages/TransactionsPage'));
 const TransactionDetailsPage = lazy(() => import('@/pages/TransactionDetailsPage'));
 const UploadsPage = lazy(() => import('@/pages/UploadsPage'));
 const ReportsPage = lazy(() => import('@/pages/ReportsPage'));
-const AuditLogsPage = lazy(() => import('@/pages/AuditLogsPage'));
+const AdminAuditLogsPage = lazy(() => import('@/pages/AdminAuditLogsPage'));
 const AdministrationPage = lazy(() => import('@/pages/AdministrationPage'));
 const AdminUploadHistoryPage = lazy(() => import('@/pages/AdminUploadHistoryPage'));
 const SettingsPage = lazy(() => import('@/pages/SettingsPage'));
@@ -104,7 +104,7 @@ export const router = createBrowserRouter([
         path: '/audit-logs',
         element: withSuspense(
           <RoleGuard route="auditLogs">
-            <AuditLogsPage />
+            <AdminAuditLogsPage />
           </RoleGuard>
         ),
       },
