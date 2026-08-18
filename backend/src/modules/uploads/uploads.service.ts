@@ -24,6 +24,42 @@ function parseCsvBuffer(buffer: Buffer): Promise<ParsedCsvResult> {
   });
 }
 
+// Collapses a header to a comparable key: lowercase, no spaces/underscores/dashes.
+// "Transaction Reference", "transaction_reference", "TransactionReference" all
+// normalize to "transactionreference", so any reasonable header naming convention
+// in the uploaded CSV maps correctly regardless of casing or separator style.
+function normalizeHeaderKey(key: string): string {
+  return key.trim().toLowerCase().replace(/[\s_-]+/g, '');
+}
+
+const FIELD_ALIASES: Record<string, string[]> = {
+  reference: ['reference', 'transactionreference', 'txnreference', 'ref'],
+  transactionDate: ['transactiondate', 'date', 'txndate'],
+  amount: ['amount'],
+  currency: ['currency'],
+  customerAccount: ['customeraccount', 'account', 'accountnumber', 'customeraccountnumber'],
+  bankCode: ['bankcode', 'bank'],
+  transactionType: ['transactiontype', 'type', 'txntype'],
+  responseCode: ['responsecode', 'code'],
+  responseDescription: ['responsedescription', 'description', 'responsedesc'],
+  status: ['status', 'transactionstatus'],
+};
+
+function normalizeRow(row: Record<string, string>): Record<string, string | undefined> {
+  const normalizedEntries = new Map<string, string>();
+  for (const [key, value] of Object.entries(row)) {
+    normalizedEntries.set(normalizeHeaderKey(key), value);
+  }
+
+  const result: Record<string, string | undefined> = {};
+  for (const [field, aliases] of Object.entries(FIELD_ALIASES)) {
+    const matchedAlias = aliases.find((alias) => normalizedEntries.has(alias));
+    result[field] = matchedAlias ? normalizedEntries.get(matchedAlias) : undefined;
+  }
+
+  return result;
+}
+
 export const uploadsService = {
   async processCsv(file: Express.Multer.File, userId: string) {
     if (!file) {
@@ -55,27 +91,15 @@ export const uploadsService = {
     // Pre-fetch references that already exist across all prior uploads,
     // so we can catch duplicates against upload history, not just within this file.
     const candidateRefs = rawRows
-      .map((r) => r.reference ?? r.transactionReference ?? r['Transaction Reference'])
-      .filter(Boolean);
+      .map((r) => normalizeRow(r).reference)
+      .filter((ref): ref is string => Boolean(ref));
     const existing = await uploadsRepository.findExistingReferences(candidateRefs);
     const existingRefSet = new Set(existing.map((e) => e.reference));
 
     rawRows.forEach((row, index) => {
       const rowNumber = index + 2; // account for header row, 1-indexed data rows
 
-      const normalized = {
-        reference: row.reference ?? row.transactionReference ?? row['Transaction Reference'],
-        transactionDate: row.transactionDate ?? row.date ?? row['Transaction Date'],
-        amount: row.amount ?? row.Amount,
-        currency: row.currency ?? row.Currency,
-        customerAccount: row.customerAccount ?? row['Customer Account'],
-        bankCode: row.bankCode ?? row['Bank Code'],
-        transactionType: row.transactionType ?? row['Transaction Type'],
-        responseCode: row.responseCode ?? row['Response Code'],
-        responseDescription: row.responseDescription ?? row['Response Description'] ?? '',
-        status: row.status ?? row['Transaction Status'],
-      };
-
+      const normalized = normalizeRow(row);
       const parsedRow = csvRowSchema.safeParse(normalized);
 
       if (!parsedRow.success) {
