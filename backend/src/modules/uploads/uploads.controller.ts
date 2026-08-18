@@ -15,8 +15,8 @@ export const uploadsController = {
   }),
 
   getHistory: asyncHandler(async (req: Request, res: Response) => {
-    const { page, limit } = req.validatedQuery as unknown as UploadHistoryQuery;
-    const { items, pagination } = await uploadsService.getHistory(page, limit);
+    const { page, limit, userId } = req.validatedQuery as unknown as UploadHistoryQuery;
+    const { items, pagination } = await uploadsService.getHistory(page, limit, userId);
     return sendSuccess(res, items, undefined, 200, pagination);
   }),
 
@@ -30,6 +30,11 @@ export const uploadsController = {
     const { id } = req.validatedParams as { id: string };
     const rejected = await uploadsService.getRejectedRecords(id);
     return sendSuccess(res, rejected);
+  }),
+
+  getUploaders: asyncHandler(async (_req: Request, res: Response) => {
+    const uploaders = await uploadsService.getUploaders();
+    return sendSuccess(res, uploaders);
   }),
 
   // Administrator Upload History (Doc 11 §21)

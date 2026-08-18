@@ -59,6 +59,16 @@ router.get(
   uploadsController.getAdminUserHistory
 );
 
+// General "who has uploaded" list for the Uploads page's "filter by user"
+// dropdown — lighter than the admin directory, available to Operations Users too.
+router.get(
+  '/uploaders',
+  authenticate,
+  requirePasswordChangeComplete,
+  authorize('Administrator', 'Operations User'),
+  uploadsController.getUploaders
+);
+
 router.post(
   '/',
   authenticate,

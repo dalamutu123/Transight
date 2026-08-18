@@ -56,15 +56,18 @@ export const uploadsRepository = {
     });
   },
 
-  async findHistory(page: number, limit: number) {
+  async findHistory(page: number, limit: number, userId?: string) {
+    const where: Prisma.UploadWhereInput = userId ? { uploadedBy: userId } : {};
+
     const [items, total] = await Promise.all([
       prisma.upload.findMany({
+        where,
         orderBy: { createdAt: 'desc' },
         skip: (page - 1) * limit,
         take: limit,
         include: { uploadedByUser: { select: { firstName: true, lastName: true, email: true } } },
       }),
-      prisma.upload.count(),
+      prisma.upload.count({ where }),
     ]);
     return { items, total };
   },
@@ -81,6 +84,18 @@ export const uploadsRepository = {
       where: { uploadId },
       orderBy: { rawRowNumber: 'asc' },
     });
+  },
+
+  // Distinct set of users who have uploaded at least one file — powers the
+  // "filter by user" dropdown in General Upload History (not the full user
+  // directory, which is admin-only).
+  async getUploaders() {
+    const uploads = await prisma.upload.findMany({
+      distinct: ['uploadedBy'],
+      select: { uploadedByUser: { select: { id: true, firstName: true, lastName: true } } },
+      orderBy: { createdAt: 'desc' },
+    });
+    return uploads.map((u) => u.uploadedByUser);
   },
 
   // ---------------------------------------------------------------------

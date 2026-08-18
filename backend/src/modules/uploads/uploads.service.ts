@@ -24,10 +24,6 @@ function parseCsvBuffer(buffer: Buffer): Promise<ParsedCsvResult> {
   });
 }
 
-// Collapses a header to a comparable key: lowercase, no spaces/underscores/dashes.
-// "Transaction Reference", "transaction_reference", "TransactionReference" all
-// normalize to "transactionreference", so any reasonable header naming convention
-// in the uploaded CSV maps correctly regardless of casing or separator style.
 function normalizeHeaderKey(key: string): string {
   return key.trim().toLowerCase().replace(/[\s_-]+/g, '');
 }
@@ -88,8 +84,6 @@ export const uploadsService = {
     const rejectedRows: Prisma.RejectedTransactionUncheckedCreateInput[] = [];
     const seenReferencesInFile = new Set<string>();
 
-    // Pre-fetch references that already exist across all prior uploads,
-    // so we can catch duplicates against upload history, not just within this file.
     const candidateRefs = rawRows
       .map((r) => normalizeRow(r).reference)
       .filter((ref): ref is string => Boolean(ref));
@@ -97,7 +91,7 @@ export const uploadsService = {
     const existingRefSet = new Set(existing.map((e) => e.reference));
 
     rawRows.forEach((row, index) => {
-      const rowNumber = index + 2; // account for header row, 1-indexed data rows
+      const rowNumber = index + 2;
 
       const normalized = normalizeRow(row);
       const parsedRow = csvRowSchema.safeParse(normalized);
@@ -189,8 +183,8 @@ export const uploadsService = {
     };
   },
 
-  async getHistory(page: number, limit: number) {
-    const { items, total } = await uploadsRepository.findHistory(page, limit);
+  async getHistory(page: number, limit: number, userId?: string) {
+    const { items, total } = await uploadsRepository.findHistory(page, limit, userId);
     return { items, pagination: buildPagination(page, limit, total) };
   },
 
@@ -203,8 +197,12 @@ export const uploadsService = {
   },
 
   async getRejectedRecords(uploadId: string) {
-    await this.getById(uploadId); // throws 404 if the upload doesn't exist
+    await this.getById(uploadId);
     return uploadsRepository.findRejectedByUploadId(uploadId);
+  },
+
+  async getUploaders() {
+    return uploadsRepository.getUploaders();
   },
 
   // ---------------------------------------------------------------------

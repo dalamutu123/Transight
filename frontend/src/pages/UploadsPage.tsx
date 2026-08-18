@@ -1,14 +1,20 @@
 import { useState } from 'react';
 import { Typography, LinearProgress, Alert } from '@mui/material';
 import { toast } from 'sonner';
+import { useQueryClient } from '@tanstack/react-query';
 import { uploadsService, type UploadResult } from '@/services/uploads.service';
 import { UploadDropzone } from '@/features/uploads/UploadDropzone';
 import { UploadResultSummary } from '@/features/uploads/UploadResultSummary';
+import { MyUploadsWidget } from '@/features/uploads/MyUploadsWidget';
+import { GeneralUploadHistory } from '@/features/uploads/GeneralUploadHistory';
+import { UploadDetailsDialog } from '@/features/uploads/UploadDetailsDialog';
 
 export default function UploadsPage() {
+  const queryClient = useQueryClient();
   const [isUploading, setIsUploading] = useState(false);
   const [result, setResult] = useState<UploadResult | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [selectedUploadId, setSelectedUploadId] = useState<string | null>(null);
 
   const handleFileSelected = async (file: File) => {
     setIsUploading(true);
@@ -18,6 +24,9 @@ export default function UploadsPage() {
       const res = await uploadsService.uploadCsv(file);
       setResult(res);
       toast.success(`Upload complete: ${res.summary.successfulRecords} of ${res.summary.totalRecords} records accepted`);
+      queryClient.invalidateQueries({ queryKey: ['my-uploads'] });
+      queryClient.invalidateQueries({ queryKey: ['general-upload-history'] });
+      queryClient.invalidateQueries({ queryKey: ['uploaders'] });
     } catch {
       setError('Failed to process the uploaded file. Please check the format and try again.');
     } finally {
@@ -43,6 +52,12 @@ export default function UploadsPage() {
       {error && <Alert severity="error">{error}</Alert>}
 
       {result && <UploadResultSummary result={result} />}
+
+      <MyUploadsWidget onSelectUpload={setSelectedUploadId} />
+
+      <GeneralUploadHistory onSelectUpload={setSelectedUploadId} />
+
+      <UploadDetailsDialog uploadId={selectedUploadId} onClose={() => setSelectedUploadId(null)} />
     </div>
   );
 }

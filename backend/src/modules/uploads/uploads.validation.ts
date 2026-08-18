@@ -9,7 +9,6 @@ function parseTransactionDate(value: unknown): Date | undefined {
 
   const trimmed = value.trim();
 
-  // ISO: YYYY-MM-DD (with optional time component)
   const isoMatch = trimmed.match(/^(\d{4})-(\d{2})-(\d{2})/);
   if (isoMatch) {
     const [, year, month, day] = isoMatch;
@@ -17,7 +16,6 @@ function parseTransactionDate(value: unknown): Date | undefined {
     return Number.isNaN(date.getTime()) ? undefined : date;
   }
 
-  // British: DD/MM/YYYY or DD-MM-YYYY
   const britishMatch = trimmed.match(/^(\d{1,2})[/-](\d{1,2})[/-](\d{4})$/);
   if (britishMatch) {
     const [, day, month, year] = britishMatch;
@@ -28,8 +26,6 @@ function parseTransactionDate(value: unknown): Date | undefined {
     if (monthNum < 1 || monthNum > 12 || dayNum < 1 || dayNum > 31) return undefined;
 
     const date = new Date(Date.UTC(yearNum, monthNum - 1, dayNum));
-    // Guard against overflow dates like 31/04/2026 (April has 30 days),
-    // which Date.UTC would otherwise silently roll into May.
     if (date.getUTCMonth() !== monthNum - 1) return undefined;
 
     return date;
@@ -64,6 +60,7 @@ export type CsvRow = z.infer<typeof csvRowSchema>;
 export const uploadHistoryQuerySchema = z.object({
   page: z.coerce.number().int().positive().default(1),
   limit: z.coerce.number().int().positive().max(100).default(20),
+  userId: z.string().uuid().optional(),
 });
 
 export type UploadHistoryQuery = z.infer<typeof uploadHistoryQuerySchema>;

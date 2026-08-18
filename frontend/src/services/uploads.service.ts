@@ -33,6 +33,12 @@ export interface UploadHistoryItem {
   uploadedByUser: { firstName: string; lastName: string; email: string };
 }
 
+export interface Uploader {
+  id: string;
+  firstName: string;
+  lastName: string;
+}
+
 export const uploadsService = {
   uploadCsv: (file: File) => {
     const formData = new FormData();
@@ -44,11 +50,20 @@ export const uploadsService = {
       .then((res) => res.data.data);
   },
 
-  getHistory: (page: number, limit: number) =>
+  getHistory: (page: number, limit: number, userId?: string) =>
     api
       .get<{ success: boolean; data: UploadHistoryItem[]; pagination: { totalPages: number; page: number } }>(
         '/uploads',
-        { params: { page, limit } }
+        { params: { page, limit, userId: userId || undefined } }
       )
       .then((res) => ({ items: res.data.data, pagination: res.data.pagination })),
+
+  getById: (id: string) =>
+    api.get<{ success: boolean; data: UploadHistoryItem }>(`/uploads/${id}`).then((res) => res.data.data),
+
+  getRejected: (id: string) =>
+    api.get<{ success: boolean; data: RejectedRow[] }>(`/uploads/${id}/rejected`).then((res) => res.data.data),
+
+  getUploaders: () =>
+    api.get<{ success: boolean; data: Uploader[] }>('/uploads/uploaders').then((res) => res.data.data),
 };
