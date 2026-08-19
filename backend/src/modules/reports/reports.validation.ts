@@ -16,6 +16,13 @@ export type GenerateReportInput = z.infer<typeof generateReportSchema>;
 export const reportHistoryQuerySchema = z.object({
   page: z.coerce.number().int().positive().default(1),
   limit: z.coerce.number().int().positive().max(100).default(20),
+  userId: z.string().uuid().optional(),
 });
 
 export type ReportHistoryQuery = z.infer<typeof reportHistoryQuerySchema>;
+
+export const reportIdParamSchema = z.object({
+  id: z.string().uuid('Invalid report id'),
+});
+
+export type ReportIdParam = z.infer<typeof reportIdParamSchema>;

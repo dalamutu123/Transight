@@ -1,8 +1,9 @@
 import ExcelJS from 'exceljs';
-import { format as formatCsv } from 'fast-csv';
-import { PassThrough } from 'stream';
+import { format as formatCsv, parse } from 'fast-csv';
+import { PassThrough, Readable } from 'stream';
 import { maskAccountNumber } from '@utils/mask';
 import { buildPagination } from '@utils/apiResponse';
+import { AppError } from '@utils/AppError';
 import { reportsRepository } from './reports.repository';
 import { auditService } from '@modules/audit/audit.service';
 import type { GenerateReportInput } from './reports.validation';
@@ -14,6 +15,39 @@ function streamToBuffer(stream: NodeJS.ReadableStream): Promise<Buffer> {
     stream.on('end', () => resolve(Buffer.concat(chunks)));
     stream.on('error', reject);
   });
+}
+
+function parseCsvBufferToRows(buffer: Buffer): Promise<Record<string, string>[]> {
+  return new Promise((resolve, reject) => {
+    const rows: Record<string, string>[] = [];
+    Readable.from(buffer)
+      .pipe(parse({ headers: true, trim: true, ignoreEmpty: true }))
+      .on('data', (row) => rows.push(row))
+      .on('error', reject)
+      .on('end', () => resolve(rows));
+  });
+}
+
+interface ReportRecord {
+  id: string;
+  type: string;
+  format: string;
+  filters: unknown;
+  fileName: string | null;
+  createdAt: Date;
+  generatedByUser: { firstName: string; lastName: string; email: string };
+}
+
+function serializeReport(report: ReportRecord) {
+  return {
+    id: report.id,
+    type: report.type,
+    format: report.format,
+    filters: report.filters,
+    fileName: report.fileName ?? `transight-report.${report.format === 'CSV' ? 'csv' : 'xlsx'}`,
+    createdAt: report.createdAt,
+    generatedByUser: report.generatedByUser,
+  };
 }
 
 export const reportsService = {
@@ -61,11 +95,16 @@ export const reportsService = {
       fileExtension = 'xlsx';
     }
 
-    await reportsRepository.createReportRecord({
+    const fileName = `transight-report-${Date.now()}.${fileExtension}`;
+
+    const report = await reportsRepository.createReportRecord({
       type: 'transaction-summary',
       filters: input.filters,
       format: input.format,
       generatedBy: userId,
+      fileName,
+      contentType,
+      fileContent: new Uint8Array(buffer),
     });
 
     await auditService.record({
@@ -75,14 +114,47 @@ export const reportsService = {
     });
 
     return {
-      buffer,
-      contentType,
-      filename: `transight-report-${Date.now()}.${fileExtension}`,
+      report: serializeReport(report),
+      rows: input.format === 'CSV' ? rows : [],
+      previewAvailable: input.format === 'CSV',
     };
   },
 
-  async getHistory(page: number, limit: number) {
-    const { items, total } = await reportsRepository.findHistory(page, limit);
-    return { items, pagination: buildPagination(page, limit, total) };
+  async getPreview(id: string) {
+    const report = await reportsRepository.findById(id);
+    if (!report || !report.fileContent) {
+      throw AppError.notFound('Report not found');
+    }
+
+    const previewAvailable = report.contentType === 'text/csv';
+    const rows = previewAvailable ? await parseCsvBufferToRows(Buffer.from(report.fileContent)) : [];
+
+    return {
+      report: serializeReport(report),
+      rows,
+      previewAvailable,
+    };
+  },
+
+  async download(id: string) {
+    const report = await reportsRepository.findById(id);
+    if (!report || !report.fileContent) {
+      throw AppError.notFound('Report not found');
+    }
+
+    return {
+      buffer: Buffer.from(report.fileContent),
+      contentType: report.contentType ?? 'application/octet-stream',
+      filename: report.fileName ?? `transight-report.${report.format === 'CSV' ? 'csv' : 'xlsx'}`,
+    };
+  },
+
+  async getHistory(page: number, limit: number, userId?: string) {
+    const { items, total } = await reportsRepository.findHistory(page, limit, userId);
+    return { items: items.map(serializeReport), pagination: buildPagination(page, limit, total) };
+  },
+
+  async getGenerators() {
+    return reportsRepository.getGenerators();
   },
 };

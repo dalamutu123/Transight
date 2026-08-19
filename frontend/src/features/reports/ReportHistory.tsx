@@ -3,9 +3,13 @@ import dayjs from 'dayjs';
 import { useQuery } from '@tanstack/react-query';
 import { reportsService } from '@/services/reports.service';
 
-export function ReportHistory() {
+interface Props {
+  onSelect: (id: string) => void;
+}
+
+export function ReportHistory({ onSelect }: Props) {
   const { data, isLoading } = useQuery({
-    queryKey: ['reports-history'],
+    queryKey: ['reports-history', 'recent'],
     queryFn: () => reportsService.getHistory(1, 10),
   });
 
@@ -28,7 +32,11 @@ export function ReportHistory() {
       ) : (
         <div className="flex flex-col divide-y divide-gray-100">
           {data.items.map((report) => (
-            <div key={report.id} className="list-item-hover py-3 px-2 flex items-center justify-between gap-3">
+            <div
+              key={report.id}
+              className="list-item-hover py-3 px-2 flex items-center justify-between gap-3 cursor-pointer"
+              onClick={() => onSelect(report.id)}
+            >
               <div>
                 <Typography variant="body2" className="font-medium">
                   {report.type.replace(/-/g, ' ')}

@@ -27,19 +27,43 @@ export const reportsRepository = {
   },
 
   createReportRecord(data: Prisma.ReportUncheckedCreateInput) {
-    return prisma.report.create({ data });
+    return prisma.report.create({
+      data,
+      include: { generatedByUser: { select: { firstName: true, lastName: true, email: true } } },
+    });
   },
 
-  async findHistory(page: number, limit: number) {
+  findById(id: string) {
+    return prisma.report.findUnique({
+      where: { id },
+      include: { generatedByUser: { select: { firstName: true, lastName: true, email: true } } },
+    });
+  },
+
+  async findHistory(page: number, limit: number, userId?: string) {
+    const where: Prisma.ReportWhereInput = userId ? { generatedBy: userId } : {};
+
     const [items, total] = await Promise.all([
       prisma.report.findMany({
+        where,
         orderBy: { createdAt: 'desc' },
         skip: (page - 1) * limit,
         take: limit,
         include: { generatedByUser: { select: { firstName: true, lastName: true, email: true } } },
       }),
-      prisma.report.count(),
+      prisma.report.count({ where }),
     ]);
     return { items, total };
+  },
+
+  // Distinct set of users who have generated at least one report — powers the
+  // "filter by user" dropdown for Report Viewer (Doc 11 §13).
+  async getGenerators() {
+    const reports = await prisma.report.findMany({
+      distinct: ['generatedBy'],
+      select: { generatedByUser: { select: { id: true, firstName: true, lastName: true } } },
+      orderBy: { createdAt: 'desc' },
+    });
+    return reports.map((r) => r.generatedByUser);
   },
 };

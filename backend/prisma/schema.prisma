@@ -151,6 +151,9 @@ model Report {
   format      String // CSV | EXCEL
   generatedBy String   @map("generated_by")
   fileUrl     String?  @map("file_url")
+  fileName    String?  @map("file_name")
+  contentType String?  @map("content_type")
+  fileContent Bytes?   @map("file_content")
   createdAt   DateTime @default(now()) @map("created_at")
 
   generatedByUser User @relation(fields: [generatedBy], references: [id])
