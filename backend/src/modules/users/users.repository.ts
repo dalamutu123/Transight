@@ -35,4 +35,15 @@ export const usersRepository = {
   update(id: string, data: Prisma.UserUncheckedUpdateInput) {
     return prisma.user.update({ where: { id }, data, include: { role: true } });
   },
+
+  // Soft delete: preserves the row (and every historical foreign-key
+  // reference from uploads, transactions, reports, and audit logs) while
+  // permanently disabling the account and removing it from active lists.
+  softDelete(id: string) {
+    return prisma.user.update({
+      where: { id },
+      data: { deletedAt: new Date(), isActive: false },
+      include: { role: true },
+    });
+  },
 };

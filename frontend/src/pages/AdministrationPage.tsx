@@ -6,9 +6,12 @@ import { toast } from 'sonner';
 import { usersService, type UserItem } from '@/services/users.service';
 import { UsersTable } from '@/features/administration/UsersTable';
 import { CreateUserDialog } from '@/features/administration/CreateUserDialog';
+import { DeleteUserDialog } from '@/features/administration/DeleteUserDialog';
 
 export default function AdministrationPage() {
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [userToDelete, setUserToDelete] = useState<UserItem | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
   const queryClient = useQueryClient();
 
   const { data: usersData, isLoading: usersLoading } = useQuery({
@@ -28,6 +31,21 @@ export default function AdministrationPage() {
       queryClient.invalidateQueries({ queryKey: ['users'] });
     } catch {
       toast.error('Failed to update user status');
+    }
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!userToDelete) return;
+    setIsDeleting(true);
+    try {
+      await usersService.remove(userToDelete.id);
+      toast.success(`${userToDelete.firstName} ${userToDelete.lastName} has been deleted`);
+      queryClient.invalidateQueries({ queryKey: ['users'] });
+      setUserToDelete(null);
+    } catch {
+      toast.error('Failed to delete user. Please try again.');
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -51,6 +69,7 @@ export default function AdministrationPage() {
         users={usersData?.items ?? []}
         loading={usersLoading}
         onToggleActive={handleToggleActive}
+        onDelete={setUserToDelete}
       />
 
       <CreateUserDialog
@@ -58,6 +77,13 @@ export default function AdministrationPage() {
         roles={roles}
         onClose={() => setDialogOpen(false)}
         onCreated={() => queryClient.invalidateQueries({ queryKey: ['users'] })}
+      />
+
+      <DeleteUserDialog
+        user={userToDelete}
+        isDeleting={isDeleting}
+        onClose={() => setUserToDelete(null)}
+        onConfirm={handleConfirmDelete}
       />
     </div>
   );

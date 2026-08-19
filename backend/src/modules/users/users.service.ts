@@ -70,4 +70,28 @@ export const usersService = {
 
     return serializeUser(updated);
   },
+
+  async remove(id: string, actorId: string) {
+    if (id === actorId) {
+      throw AppError.badRequest('You cannot delete your own account');
+    }
+
+    const existing = await usersRepository.findById(id);
+    if (!existing) {
+      throw AppError.notFound('User not found');
+    }
+
+    await usersRepository.softDelete(id);
+
+    // Preserved deliberately: this user's uploads, transactions, reports,
+    // and audit log entries remain in the system, still correctly
+    // attributed to them, per data-integrity and auditability requirements.
+    await auditService.record({
+      userId: actorId,
+      action: 'DELETE_USER',
+      description: `Deleted user ${existing.email} (${existing.role.name})`,
+    });
+
+    return { success: true };
+  },
 };

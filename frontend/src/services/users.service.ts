@@ -48,5 +48,7 @@ export const usersService = {
   update: (id: string, payload: UpdateUserPayload) =>
     api.put<{ success: boolean; data: UserItem }>(`/users/${id}`, payload).then((res) => res.data.data),
 
+  remove: (id: string) => api.delete(`/users/${id}`),
+
   getRoles: () => api.get<{ success: boolean; data: Role[] }>('/roles').then((res) => res.data.data),
 };

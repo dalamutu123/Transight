@@ -40,4 +40,13 @@ router.put(
   usersController.update
 );
 
+router.delete(
+  '/:id',
+  authenticate,
+  requirePasswordChangeComplete,
+  authorize('Administrator'),
+  validate({ params: userIdParamSchema }),
+  usersController.remove
+);
+
 export default router;

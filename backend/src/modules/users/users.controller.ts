@@ -21,4 +21,10 @@ export const usersController = {
     const user = await usersService.update(id, req.body, req.user!.id);
     return sendSuccess(res, user, 'User updated');
   }),
+
+  remove: asyncHandler(async (req: Request, res: Response) => {
+    const { id } = req.validatedParams as { id: string };
+    await usersService.remove(id, req.user!.id);
+    return sendSuccess(res, null, 'User deleted');
+  }),
 };
