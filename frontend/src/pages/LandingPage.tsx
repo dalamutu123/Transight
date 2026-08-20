@@ -1,9 +1,8 @@
-import { Navigate, useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { Button, Typography } from '@mui/material';
 import DashboardIcon from '@mui/icons-material/DashboardOutlined';
 import UploadFileIcon from '@mui/icons-material/UploadFileOutlined';
 import SummarizeIcon from '@mui/icons-material/SummarizeOutlined';
-import { useAuthStore } from '@/store/authStore';
 import { LoginModal } from '@/features/auth/LoginModal';
 
 const features = [
@@ -25,15 +24,9 @@ const features = [
 ];
 
 export default function LandingPage() {
-  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
   const location = useLocation();
   const navigate = useNavigate();
   const isLoginOpen = location.pathname === '/login';
-
-  // Already logged in? Skip the landing page and go straight to the app.
-  if (isAuthenticated) {
-    return <Navigate to="/dashboard" replace />;
-  }
 
   return (
     <div className="min-h-screen bg-slate-gray flex flex-col">
