@@ -33,6 +33,7 @@ export function ReportGeneratorForm({ onGenerated }: Props) {
       toast.success('Report generated');
       queryClient.invalidateQueries({ queryKey: ['reports-history'] });
       queryClient.invalidateQueries({ queryKey: ['report-generators'] });
+      queryClient.invalidateQueries({ queryKey: ['dashboard'] });
       onGenerated(result);
     } catch {
       toast.error('Failed to generate report. Please try again.');

@@ -27,6 +27,8 @@ export default function UploadsPage() {
       queryClient.invalidateQueries({ queryKey: ['my-uploads'] });
       queryClient.invalidateQueries({ queryKey: ['general-upload-history'] });
       queryClient.invalidateQueries({ queryKey: ['uploaders'] });
+      queryClient.invalidateQueries({ queryKey: ['dashboard'] });
+      queryClient.invalidateQueries({ queryKey: ['dashboard', 'admin'] });
     } catch {
       setError('Failed to process the uploaded file. Please check the format and try again.');
     } finally {

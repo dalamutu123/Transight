@@ -24,11 +24,16 @@ export default function AdministrationPage() {
     queryFn: () => usersService.getRoles(),
   });
 
+  const invalidateUserRelatedData = () => {
+    queryClient.invalidateQueries({ queryKey: ['users'] });
+    queryClient.invalidateQueries({ queryKey: ['dashboard', 'admin'] });
+  };
+
   const handleToggleActive = async (user: UserItem) => {
     try {
       await usersService.update(user.id, { isActive: !user.isActive });
       toast.success(`${user.firstName} ${user.lastName} ${!user.isActive ? 'activated' : 'deactivated'}`);
-      queryClient.invalidateQueries({ queryKey: ['users'] });
+      invalidateUserRelatedData();
     } catch {
       toast.error('Failed to update user status');
     }
@@ -40,7 +45,7 @@ export default function AdministrationPage() {
     try {
       await usersService.remove(userToDelete.id);
       toast.success(`${userToDelete.firstName} ${userToDelete.lastName} has been deleted`);
-      queryClient.invalidateQueries({ queryKey: ['users'] });
+      invalidateUserRelatedData();
       setUserToDelete(null);
     } catch {
       toast.error('Failed to delete user. Please try again.');
@@ -76,7 +81,7 @@ export default function AdministrationPage() {
         open={dialogOpen}
         roles={roles}
         onClose={() => setDialogOpen(false)}
-        onCreated={() => queryClient.invalidateQueries({ queryKey: ['users'] })}
+        onCreated={invalidateUserRelatedData}
       />
 
       <DeleteUserDialog
