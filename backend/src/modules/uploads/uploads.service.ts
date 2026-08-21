@@ -24,7 +24,8 @@ function parseCsvBuffer(buffer: Buffer): Promise<ParsedCsvResult> {
   });
 }
 
-function normalizeHeaderKey(key: string): string {
+// Collapses a header to a comparable key: lowercase, no spaces/underscores/dashes.
+export function normalizeHeaderKey(key: string): string {
   return key.trim().toLowerCase().replace(/[\s_-]+/g, '');
 }
 
@@ -41,7 +42,7 @@ const FIELD_ALIASES: Record<string, string[]> = {
   status: ['status', 'transactionstatus'],
 };
 
-function normalizeRow(row: Record<string, string>): Record<string, string | undefined> {
+export function normalizeRow(row: Record<string, string>): Record<string, string | undefined> {
   const normalizedEntries = new Map<string, string>();
   for (const [key, value] of Object.entries(row)) {
     normalizedEntries.set(normalizeHeaderKey(key), value);
@@ -204,10 +205,6 @@ export const uploadsService = {
   async getUploaders() {
     return uploadsRepository.getUploaders();
   },
-
-  // ---------------------------------------------------------------------
-  // Administrator Upload History (Doc 11 §21)
-  // ---------------------------------------------------------------------
 
   async getAdminDirectory(search?: string) {
     const users = await uploadsRepository.getUserDirectoryWithUploadCounts(search);

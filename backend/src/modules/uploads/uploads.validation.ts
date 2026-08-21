@@ -3,7 +3,7 @@ import { z } from 'zod';
 // Parses DD/MM/YYYY, DD-MM-YYYY (British format), or YYYY-MM-DD (ISO, unambiguous).
 // Deliberately does NOT hand the raw string to `new Date(...)`, since that assumes
 // American MM/DD/YYYY for slash-separated dates — wrong for this project's data.
-function parseTransactionDate(value: unknown): Date | undefined {
+export function parseTransactionDate(value: unknown): Date | undefined {
   if (value instanceof Date) return value;
   if (typeof value !== 'string' || !value.trim()) return undefined;
 
@@ -68,10 +68,6 @@ export type UploadHistoryQuery = z.infer<typeof uploadHistoryQuerySchema>;
 export const uploadIdParamSchema = z.object({
   id: z.string().uuid('Invalid upload id'),
 });
-
-// ---------------------------------------------------------------------------
-// Administrator Upload History (Doc 11 §21)
-// ---------------------------------------------------------------------------
 
 export const adminUploadDirectoryQuerySchema = z.object({
   search: z.string().trim().optional(),
